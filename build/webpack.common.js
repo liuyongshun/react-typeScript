@@ -1,6 +1,6 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-
+console.log(__dirname,  '33333',path.join(__dirname), 'fffkffffkfkfk')
 module.exports = {
   entry: path.join(__dirname, '../src/index.tsx'),
   output: {
@@ -16,12 +16,8 @@ module.exports = {
       },
       {
         test: /\.(j|t)sx?$/,
-        include: [resolve('../src')],
-        use: [
-          {
-            loader: 'babel-loader'
-          }
-        ],
+        use: ['babel-loader'],
+        include: [path.resolve('../src')],
         // 排除node_modules底下的
         exclude: /node_modules/
       }
