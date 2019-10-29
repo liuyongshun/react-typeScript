@@ -1,7 +1,7 @@
 const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
-console.log(__dirname, '33333', path.join(__dirname), 'fffkffffkfkfk')
-console.log(path.resolve(__dirname, '../src/api'), 'kkkkkkkkkkkkkkkkkkkkkk')
+// console.log(__dirname, '33333', path.join(__dirname), 'fffkffffkfkfk')
+// console.log(path.resolve(__dirname, '../src/api'), 'kkkkkkkkkkkkkkkkkkkkkk')
 module.exports = {
   entry: path.join(__dirname, '../src/index.tsx'),
   output: {
@@ -12,7 +12,7 @@ module.exports = {
   resolve: {
     extensions: ['.ts', '.tsx', '.js', '.json'],
     alias: {
-      '@': path.resolve(__dirname, '../src'),
+         '@': path.resolve(__dirname, '../src'),
       '@api': path.resolve(__dirname, '../src/api'),
       '@router': path.resolve(__dirname, '../router')
     }
@@ -27,7 +27,17 @@ module.exports = {
       {
         test: /\.tsx?$/,
         loader: 'awesome-typescript-loader'
-      }
+      },
+      {
+        test: /\.css$/, // 正则匹配文件路径
+        exclude: /node_modules/,
+        use: [
+          // 注意loader生效是从下往上的
+          'style-loader',
+          'css-loader'
+        ]
+     }
+
       // {
       //   test: /\.js$/,
       //   enforce: 'pre',
