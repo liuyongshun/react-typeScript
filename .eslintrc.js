@@ -14,6 +14,7 @@ module.exports = {
     es6: true
   },
   parser: '@typescript-eslint/parser',
+  
   plugins: [
     "@typescript-eslint",
     "react-hooks"
