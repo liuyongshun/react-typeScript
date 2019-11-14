@@ -1,13 +1,15 @@
-const packageInfo = {name: 'pc'}
+const packageInfo = {
+  name: 'pc'
+}
 
 const getNow = () => new Date().getTime()
 
 class Storage {
-  constructor (storageType) {
+  constructor(storageType) {
     this.root = packageInfo.name
     this.storage = window[storageType || 'localStorage']
   }
-  set (key, value, time) {
+  set(key, value, time) {
     let storage = JSON.parse(this.storage[this.root] || '{}')
     if (time) {
       storage[key] = {
@@ -20,7 +22,7 @@ class Storage {
     }
     this.storage[this.root] = JSON.stringify(storage)
   }
-  get (key) {
+  get(key) {
     let storage = JSON.parse(this.storage[this.root] || '{}')
     let val = storage[key]
     if (val && val.keyActiveTime) {
@@ -33,7 +35,7 @@ class Storage {
     }
     return val
   }
-  remove (key) {
+  remove(key) {
     if (!this.storage[this.root]) {
       return
     }

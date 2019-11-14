@@ -1,25 +1,12 @@
 import fetch from 'node-fetch'
 // import { notification } from 'dtd'
-import { storage } from './storage'
-import { CURRENT_CONFIG } from '../config/env'
+import {
+  storage
+} from './storage'
+import {
+  CURRENT_CONFIG
+} from '../config/env'
 
-// const codeMessage = {
-//   200: '服务器成功返回请求的数据',
-//   201: '新建或修改数据成功。',
-//   202: '一个请求已经进入后台排队（异步任务）',
-//   204: '删除数据成功。',
-//   400: '发出的请求有错误，服务器没有进行新建或修改数据,的操作。',
-//   401: '用户没有权限（令牌、用户名、密码错误）。',
-//   403: '用户得到授权，但是访问是被禁止的。',
-//   404: '发出的请求针对的是不存在的记录，服务器没有进行操作',
-//   406: '请求的格式不可得。',
-//   410: '请求的资源被永久删除，且不会再得到的。',
-//   422: '当创建一个对象时，发生一个验证错误。',
-//   500: '服务器发生错误，请检查服务器',
-//   502: '网关错误',
-//   503: '服务不可用，服务器暂时过载或维护',
-//   504: '网关超时'
-// };
 
 function checkStatus(response) {
   if (response.status >= 200 && response.status < 300) {
@@ -43,7 +30,10 @@ export default async function request(url, options, cutomUrl) {
   }
   // 容错处理
   options.method = options.method.toUpperCase()
-  const newOptions = { ...defaultOptions, ...options }
+  const newOptions = {
+    ...defaultOptions,
+    ...options
+  }
   if (newOptions.method === 'POST' || newOptions.method === 'PUT') {
     newOptions.headers = {
       Accept: 'application/json',
@@ -63,9 +53,9 @@ export default async function request(url, options, cutomUrl) {
     let paramsArray = []
     Object.keys(newOptions.data).forEach(key => paramsArray.push(key + '=' + newOptions.data[key]))
     if (fullUrl.search(/\?/) === -1) {
-        fullUrl += '?' + paramsArray.join('&')
+      fullUrl += '?' + paramsArray.join('&')
     } else {
-        fullUrl += '&' + paramsArray.join('&')
+      fullUrl += '&' + paramsArray.join('&')
     }
     delete newOptions.data
   }
@@ -81,17 +71,6 @@ export default async function request(url, options, cutomUrl) {
       }
       return response.json()
     })
-    // 对返回的json进行处理
-    // .then((res) => {
-    //   if (res.status >= 200 && res.status < 300) {
-    //     return res
-    //   } else {
-    //     notification.error({
-    //       message: res.message
-    //     })
-    //     return res
-    //   }
-    // })
     .catch(() => {
       console.error('Error in getting Domain')
     })

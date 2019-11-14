@@ -1,5 +1,4 @@
 import request from '@/utils/request'
-let tokenDomain = 'tokenDomain'
 let dashboardDomain = 'dashboardDomain'
 /**
  * 第三个参数用来改变请求接口的的baseUrl
@@ -10,7 +9,10 @@ let dashboardDomain = 'dashboardDomain'
  * loginUrl           all
  * logoutUrl          uat&tra&pro
  */
-export const login = ({ userName, password }) => {
+export const login = ({
+  userName,
+  password
+}) => {
   const data = {
     userName,
     password
@@ -21,7 +23,9 @@ export const login = ({ userName, password }) => {
   })
 }
 
-export const logout = ({ token }) => {
+export const logout = ({
+  token
+}) => {
   const data = {
     token
   }
@@ -30,14 +34,6 @@ export const logout = ({ token }) => {
     data: data
   })
 }
-
-export const getAccessToken = data => {
-  return request('/oauth2/token', {
-    method: 'POST',
-    data: data
-  }, tokenDomain)
-}
-
 export const getUserInfo = data => {
   return request('/api/common/workbench/getPersonalInfo', {
     method: 'POST',
