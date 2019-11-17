@@ -1,16 +1,15 @@
 import Home from '@/pages/home/index'
 import Index from '@/pages/index'
 
-const routes = [{
+const routes = [
+  {
     path: '/index',
-    component: Index
+    component: Index,
   },
   {
     path: '/home',
-    component: Home
-  }
+    component: Home,
+  },
 ]
 
-export {
-  routes
-}
+export { routes }
