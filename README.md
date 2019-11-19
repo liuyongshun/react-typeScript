@@ -198,6 +198,62 @@ import '../style/common.css'
 }
 ```
 
+5、假如使用sass，需要安装`sass-loader node-sass`，在webpack.config.js中配置如下。
+
+```
+{
+  test: /\.scss$/,
+  use: [
+    'style-loader',
+    'css-loader',
+    'sass-loader'
+  ]
+}
+```
+
+6、假如使用stylus，需要安装`stylus-loader stylus`，在webpack.config.js中配置如下。
+
+```
+{
+  test: /\.styl$/,
+  use: [
+    'style-loader',
+    'css-loader',
+    'stylus-loader'
+  ]
+}
+```
+
 **注意**
 
 less-loader 依赖于 less，有时候出现 peerDependencies WARNING less-loader@\* requires a peer of less@^2.3.1 || ^3.0.0 but none was installed，自己手动安装一下 less 即可。反正记住：遇到 peerDependencies WARNING，什么依赖未能安装时，记得手动安装即可。或者用 yarn 更稳妥。
+
+#### 配置图片，字体文件资源加载
+
+1、字体和图片资源需要依赖file-loader。另外还有url-loader可以作为解决方案，url-loader可以处理小资源转化为base64格式。url-loader依赖于file-loader。
+
+```
+ {
+  test: /\.(png|svg|jpg|git)$/,
+  use: [
+    {
+      loader: 'url-loader',
+      options: {
+        limit: 10240
+      }
+    }
+  ]
+},
+{
+  test: /\.(woff2?|eot|ttf|otf)(\?.*)?$/,
+  use: [
+    {
+      loader: 'url-loader',
+      options: {
+        limit: 10240
+      }
+    }
+  ]
+}
+```
+
