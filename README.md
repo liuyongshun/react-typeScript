@@ -150,6 +150,40 @@ export default App
 
 **操作到这里，一个简单的 react 页面已经跑起来了，但是很显然这些东西是不够的，一个完整的项目工程，还需要很多东西。如果上面的基本配置完成并且跑起了项目，那就接着往下走吧。整个流程下来，最后要实现的是完整的开发，构建打包内容，能够支撑项目的运作。**
 
+#### 配置 webpack 的一些优化项目
+
+1、 配置别名和拓展名自动补充，规范同时方便 import 导入。
+
+```
+// webpack.config.js
+
+resolve: {
+  extensions: ['.js', '.json', '.styl'],
+  alias: {
+    '@': path.resolve(__dirname, '../src/')
+  }
+}
+```
+
+2、优化 react 的引入方式
+
+```
+// webpack.config.js
+
+externals: {
+    react: 'React',
+    'react-dom': 'ReactDOM',
+  },
+
+// public/index.html
+
+head内增加
+
+<script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+
+```
+
 #### 配置样式，less 或 sass 或 stylus。
 
 1、安装依赖 `css-loader` 加载.css 文件，并转换成 commonjs 对象。安装`style-loader`，将样式通过 style 标签插入 head 标签内。
@@ -198,7 +232,7 @@ import '../style/common.css'
 }
 ```
 
-5、假如使用sass，需要安装`sass-loader node-sass`，在webpack.config.js中配置如下。
+5、假如使用 sass，需要安装`sass-loader node-sass`，在 webpack.config.js 中配置如下。
 
 ```
 {
@@ -211,7 +245,7 @@ import '../style/common.css'
 }
 ```
 
-6、假如使用stylus，需要安装`stylus-loader stylus`，在webpack.config.js中配置如下。
+6、假如使用 stylus，需要安装`stylus-loader stylus`，在 webpack.config.js 中配置如下。
 
 ```
 {
@@ -230,7 +264,7 @@ less-loader 依赖于 less，有时候出现 peerDependencies WARNING less-loade
 
 #### 配置图片，字体文件资源加载
 
-1、字体和图片资源需要依赖file-loader。另外还有url-loader可以作为解决方案，url-loader可以处理小资源转化为base64格式。url-loader依赖于file-loader。
+1、字体和图片资源需要依赖 file-loader。另外还有 url-loader 可以作为解决方案，url-loader 可以处理小资源转化为 base64 格式。url-loader 依赖于 file-loader。
 
 ```
  {
@@ -257,3 +291,53 @@ less-loader 依赖于 less，有时候出现 peerDependencies WARNING less-loade
 }
 ```
 
+#### 安装 type-script 配置
+
+1、 安装 react 声明文件 `@types/react @types/react-dom`
+
+2、安装 typescript 依赖`typescript`
+
+3、新建 tsconfig.json
+
+[更多配置](https://www.tslang.cn/docs/handbook/tsconfig-json.html)
+
+```
+// tsconfig.json
+
+{
+    "compilerOptions": {
+        "outDir": "./dist/",
+        "sourceMap": true,
+        "noImplicitAny": true,
+        "module": "commonjs",
+        "target": "es5",
+        "jsx": "react"
+    },
+    "include": [
+        "./src/**/*"
+    ]
+}
+```
+
+4、配置 webpack.config.js
+
+```
+// 1. extensions增加.ts 和 .tsx
+resolve: {
+  extensions: ['.ts', '.tsx', '.js', '.json', '.styl'],
+  alias: {
+    '@': path.resolve(__dirname, '../src/')
+  }
+},
+
+// 2. webpack.config.js 的rules里配置。
+
+  {
+    test: /\.(j|t)sx?$/,
+    use: ['babel-loader']
+  }
+
+// 3. webpack.config.js的entry的index.js改为index.tsx
+```
+
+5、 将文件拓展名从`.js`改成`.tsx`。
