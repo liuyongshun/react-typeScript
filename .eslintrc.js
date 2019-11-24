@@ -1,65 +1,27 @@
 module.exports = {
-  extends: [
-    "eslint:recommended",
-    "plugin:react/recommended"
-  ],
-  parserOptions: {
-    "ecmaVersion": 2019,
-    "sourceType": "module"
-  },
-  env: {
-    node: true,
-    browser: true,
-    commonjs: true,
-    es6: true
-  },
-  parser: '@typescript-eslint/parser',
-  
-  plugins: [
-    "@typescript-eslint",
-    "react-hooks"
-  ],
-  globals: {
-    // 这里填入你的项目需要的全局变量
-    // 这里值为 false 表示这个全局变量不允许被重新赋值，比如：
-    // React: false,
-    // ReactDOM: false
-  },
-  settings: {
-    react: {
-        pragma: "React",
-        version: "detect"
-    }
-  },
-  rules: {
-    // 这里填入你的项目需要的个性化配置，比如：
-    //
-    // // @fixable 一个缩进必须用两个空格替代
-    semi: ['error', 'never'],
-    'no-console': 'off',
-    'no-unused-vars': [
-      'warn',
-      {
-        vars: 'all',
-        args: 'none',
-        caughtErrors: 'none'
-      }
-    ],
-    'max-nested-callbacks': 'off',
-    'react/no-children-prop': 'off',
-    'typescript/member-ordering': 'off',
-    'typescript/member-delimiter-style': 'off',
-    'react/jsx-indent-props': 'off',
-    'react/no-did-update-set-state': 'off',
-    "react-hooks/rules-of-hooks": "error",
-    "react-hooks/exhaustive-deps": "warn",
-    indent: [
-      'off',
-      2,
-      {
-        SwitchCase: 1,
-        flatTernaryExpressions: true
-      }
-    ]
-  }
+
+    parser: '@typescript-eslint/parser',
+    extends: [
+        'plugin:react/recommended',
+        'plugin:@typescript-eslint/recommended'
+    ], //使用推荐的React代码检测规范
+    plugins: ['@typescript-eslint'],
+    env: {
+        browser: true,
+        node: true,
+    },
+    settings: { //自动发现React的版本，从而进行规范react代码
+        "react": {
+            "pragma": "React",
+            "version": "detect"
+        }
+    },
+    parserOptions: { //指定ESLint可以解析JSX语法
+        "ecmaVersion": 2019,
+        "sourceType": 'module',
+        "ecmaFeatures": {
+            jsx: true
+        }
+    },
+    rules: {}
 }

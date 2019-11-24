@@ -343,3 +343,13 @@ resolve: {
 5、 将文件拓展名从`.js`改成`.tsx`。
 
 #### 配置 eslint 规范代码
+
+[ts 使用 eslint](https://eslint.org/blog/2019/01/future-typescript-eslint#linting)
+
+[TypeScript ESLint 相关信息](https://github.com/typescript-eslint/typescript-eslint)
+
+**typescript-eslint-parser 不在维护用@typescript-eslint/parser 代替，可查看上面第一个链接。**
+
+- 安装 eslint 和 ts 相关插件 `eslint @typescript-eslint/parser`, 另外还需插件`@typescript-eslint/eslint-plugin`包含了各类定义好的检测 Typescript 代码的规范。
+
+- 因为同时是 react 项目，还需要安装 `eslint-plugin-react`

@@ -1,15 +1,38 @@
 import Home from '@/pages/home/index'
-import Index from '@/pages/index'
+import Nav from '@/components/nav'
+import Profile from '@/pages/profile/index'
+import Message from '@/pages/message/index'
+import Gallery from '@/pages/gallery/index'
 
-const routes = [
+export default [
   {
-    path: '/index',
-    component: Index,
+    path: '/',
+    exact: true,
+    name: 'nav',
+    component: Nav
   },
   {
     path: '/home',
-    component: Home,
+    exact: true,
+    name: 'homePage',
+    component: Home
   },
+  {
+    path: '/profile',
+    exact: true,
+    name: 'Profile',
+    component: Profile
+  },
+  {
+    path: '/message',
+    exact: true,
+    name: 'Message',
+    component: Message
+  },
+  {
+    path: '/gallery',
+    exact: true,
+    name: 'Gallery',
+    component: Gallery
+  }
 ]
-
-export { routes }
