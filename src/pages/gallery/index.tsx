@@ -1,4 +1,6 @@
-import React, { Component } from 'react'
+/** @format */
+
+import React, {Component} from 'react'
 
 class Gallery extends Component {
   render() {

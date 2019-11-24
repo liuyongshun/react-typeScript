@@ -1,3 +1,5 @@
+<!-- @format -->
+
 ### react + typescript 项目搭建
 
 #### 基础结构搭建
@@ -204,11 +206,11 @@ head内增加
 
 **ps:**
 
-- 这里有个要注意的点，样式加载器的顺序，先 style-loader 在 css-loader。
+-   这里有个要注意的点，样式加载器的顺序，先 style-loader 在 css-loader。
 
 **知识：**
 
-- webpack 的 loader 采用了函数的 compose（组合）方式，而不是 pipe（管道），compose 方式的执行顺序是从右到左，pipe 的执行顺序是从做到右。
+-   webpack 的 loader 采用了函数的 compose（组合）方式，而不是 pipe（管道），compose 方式的执行顺序是从右到左，pipe 的执行顺序是从做到右。
 
 3、在 src 下新建 style 文件，然后里面新建 common.css。并且导入到 pages/index.js 页面。
 
@@ -350,6 +352,134 @@ resolve: {
 
 **typescript-eslint-parser 不在维护用@typescript-eslint/parser 代替，可查看上面第一个链接。**
 
-- 安装 eslint 和 ts 相关插件 `eslint @typescript-eslint/parser`, 另外还需插件`@typescript-eslint/eslint-plugin`包含了各类定义好的检测 Typescript 代码的规范。
+-   安装 eslint 和 ts 相关插件 `eslint @typescript-eslint/parser`, 另外还需插件`@typescript-eslint/eslint-plugin`包含了各类定义好的检测 Typescript 代码的规范。
 
-- 因为同时是 react 项目，还需要安装 `eslint-plugin-react`
+-   因为同时是 react 项目，还需要安装 `eslint-plugin-react`
+
+- 配置`.eslintrc.js`文件
+
+```
+module.exports = {
+
+    parser:  '@typescript-eslint/parser', //定义ESLint的解析器
+    extends: [
+    'plugin:react/recommended'  
+    'plugin:@typescript-eslint/recommended'
+    ],                             
+    plugins: ['@typescript-eslint'], //定义ESLint的解析器
+    env:{                         
+        browser: true,
+        node: true,
+    },
+    settings: {             //自动发现React的版本，从而进行规范react代码
+        "react": {
+            "pragma": "React",
+            "version": "detect"
+        }
+    }, 
+    parserOptions: {        //指定ESLint可以解析JSX语法
+        "ecmaVersion": 2019,
+        "sourceType": 'module',
+        "ecmaFeatures":{
+            jsx:true
+        }
+    }
+    rules: {
+    
+    }
+}
+```
+- 为了方便使用采用Prettier和eslint结合来格式化代码，安装依赖 `prettier eslint-config-prettier eslint-plugin-prettier`
+
+1. prettier：prettier插件的核心代码
+2. eslint-config-prettier：解决ESLint中的样式规范和prettier中样式规范的冲突，以prettier的样式规范为准，使ESLint中的样式规范自动失效
+3. eslint-plugin-prettier：将prettier作为ESLint规范来使用
+
+- 创建.prettierrc.js文件
+
+```
+module.exports =  {
+    "printWidth": 120,
+    "semi": false,
+    "singleQuote": true,
+    "trailingComma": "all",
+    "bracketSpacing": false,
+    "jsxBracketSameLine": true,
+    "arrowParens": "avoid",
+    "insertPragma": true,
+    "tabWidth": 2,
+    "useTabs": false  
+  };
+```
+
+- 修改`.eslintrc.js` 文件，搭配prettier使用。
+
+```
+// 更改掉extents即可。
+  extends: [
+    'plugin:react/recommended'  
+    'plugin:@typescript-eslint/recommended'
+    ],    
+```
+1. prettier/@typescript-eslint：使得@typescript-eslint中的样式规范失效，遵循prettier中的样式规范
+2. plugin:prettier/recommended：使用prettier中的样式规范，且如果使得ESLint会检测prettier的格式问题，同样将格式问题以error的形式抛出
+
+**到这里，基本上完成eslint和prettier的配置了，然后接下来有两个选择，1. 配合husky和lint-staged在git提交时自动格式化代码。2.开发时配合vscode保存自动格式化代码。**
+
+**方式1:**
+
+1、 安装依赖，`husky lint-staged`。
+
+2、 配置package.json
+
+```
+// script 增加
+ "scripts": {
+   "lint": "eslint src --fix --ext .ts,.tsx"
+}
+
+// scripts同级
+ "husky": {
+   "hooks": {
+      "pre-commit": "npm run lint"
+    }
+},
+```
+
+-   vs code 安装 eslint 插件。设置如下配置。preferences —— setting
+
+```
+"editor.formatOnSave": true,
+ "eslint.run": "onSave",
+    "eslint.autoFixOnSave": true,
+    "eslint.validate": [
+        "javascript",
+        "javascriptreact",
+        "html",
+        "vue",
+        {
+            "language": "typescript",
+            "autoFix": true
+        },
+        {
+            "language": "html",
+            "autoFix": true
+        },
+        {
+            "language": "typescript",
+            "autoFix": true
+        },
+        {
+            "language": "typescriptreact",
+            "autoFix": true
+        },
+        "typescriptreact"
+    ],
+    "eslint.options": {
+        "extensions": [
+            ".js",
+            ".vue",
+            ".tsx"
+        ]
+    },
+```

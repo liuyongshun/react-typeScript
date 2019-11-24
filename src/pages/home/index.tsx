@@ -1,17 +1,17 @@
-import React, { Component } from 'react'
+/** @format */
+
+import React, {Component} from 'react'
 
 class Home extends Component {
-  constructor ( props ) {
-     super(props)
-   }
-  skipTo (path) {
+  constructor(props) {
+    super(props)
+  }
+  skipTo(path) {
     console.log(path)
     console.log(this.props)
   }
   render() {
-    return (
-      <div onClick={this.skipTo.bind(this, 'fff')}>home</div>
-    )
+    return <div onClick={this.skipTo.bind(this, 'fff')}>home</div>
   }
 }
 export default Home

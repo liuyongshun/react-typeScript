@@ -1,5 +1,6 @@
-import React, { Component } from 'react'
-import { HashRouter, Route, Switch } from 'react-router-dom'
+/** @format */
+import React, {Component} from 'react'
+import {HashRouter, Route, Switch} from 'react-router-dom'
 import Main from './main'
 import '../style/common.css'
 // import '../style/less.less'
@@ -14,14 +15,11 @@ class App extends Component {
       <div>
         <HashRouter>
           <Switch>
-            <Route path="/"
-                component={
-                     (props) => {
-                       return (
-                         <Main  {...props}/>
-                       )
-                     }
-                   }
+            <Route
+              path="/"
+              component={props => {
+                return <Main {...props} />
+              }}
             />
           </Switch>
         </HashRouter>
