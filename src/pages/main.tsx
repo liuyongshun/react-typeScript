@@ -1,7 +1,7 @@
 /** @format */
 
-import React, {Component} from 'react'
-import {Redirect, Route, Switch} from 'react-router-dom'
+import React, { Component } from 'react'
+import { Redirect, Route, Switch } from 'react-router-dom'
 import router from '@/router/index'
 class Main extends Component {
   dd() {
