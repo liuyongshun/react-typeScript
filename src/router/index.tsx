@@ -11,30 +11,30 @@ export default [
     path: '/',
     exact: true,
     name: 'nav',
-    component: Nav,
+    component: Nav
   },
   {
     path: '/home',
     exact: true,
     name: 'homePage',
-    component: Home,
+    component: Home
   },
   {
     path: '/profile',
     exact: true,
     name: 'Profile',
-    component: Profile,
+    component: Profile
   },
   {
     path: '/message',
     exact: true,
     name: 'Message',
-    component: Message,
+    component: Message
   },
   {
     path: '/gallery',
     exact: true,
     name: 'Gallery',
-    component: Gallery,
-  },
+    component: Gallery
+  }
 ]

@@ -1,8 +1,7 @@
 /** @format */
 
 import React, { Component } from 'react'
-import './nav.styl'
-import ss from '@/assets/images/default2x.png'
+
 const list = [
   {
     name: 'home',
@@ -27,8 +26,7 @@ class Nav extends Component {
     super(props)
   }
   skipTo(path) {
-    console.log(path)
-    console.log(this.props)
+    this.props.history.push(path)
   }
   render() {
     return (
@@ -36,7 +34,6 @@ class Nav extends Component {
         {list.map((n, i) => (
           <li key={i} onClick={this.skipTo.bind(this, n.path)}>
             {n.name}
-            <img src={ss} alt="" />
           </li>
         ))}
       </ul>

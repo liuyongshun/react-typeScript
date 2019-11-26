@@ -19,6 +19,7 @@ module.exports = {
       '@': path.resolve(__dirname, '../src/')
     }
   },
+  devtool: 'eval',
   module: {
     rules: [
       {

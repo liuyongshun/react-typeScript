@@ -6,10 +6,7 @@ class Home extends Component {
   constructor(props) {
     super(props)
   }
-  skipTo(path) {
-    console.log(path)
-    console.log(this.props)
-  }
+  skipTo(path) {}
   render() {
     return <div onClick={this.skipTo.bind(this, 'fff')}>homfffe</div>
   }

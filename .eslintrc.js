@@ -2,7 +2,8 @@
 
 module.exports = {
   parser: '@typescript-eslint/parser',
-  extends: ['prettier/@typescript-eslint', 'plugin:prettier/recommended'], //使用推荐的React代码检测规范
+  extends: ['plugin:prettier/recommended', 'prettier', 'prettier/@typescript-eslint'], //使用推荐的React代码检测规范
+  // extends: ['airbnb', 'plugin:@typescript-eslint/recommended'], //使用推荐的React代码检测规范
   plugins: ['@typescript-eslint'],
   env: {
     browser: true,

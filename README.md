@@ -352,7 +352,7 @@ resolve: {
 
 **typescript-eslint-parser 不在维护用@typescript-eslint/parser 代替，可查看上面第一个链接。**
 
-- 安装 eslint 和 ts 相关插件 `eslint @typescript-eslint/parser`, 另外还需插件`@typescript-eslint/eslint-plugin`包含了各类定义好的检测 Typescript 代码的规范。
+- 安装 eslint 和 ts 相关插件 `eslint eslint-loader @typescript-eslint/parser`, 另外还需插件`@typescript-eslint/eslint-plugin`包含了各类定义好的检测 Typescript 代码的规范。
 
 - 因为同时是 react 项目，还需要安装 `eslint-plugin-react`
 
@@ -388,6 +388,23 @@ module.exports = {
 
     }
 }
+
+```
+
+- 配置 webpack.config.js
+
+```
+// 配置webpack.config.js
+
+{
+  test: /\.js$/,
+  use: ['babel-loader', 'eslint-loader'],
+  include: path.join(__dirname, '../src')
+},
+{
+  test: /\.(j|t)sx?$/,
+  use: ['babel-loader', 'eslint-loader']
+},
 ```
 
 - 为了方便使用采用 Prettier 和 eslint 结合来格式化代码，安装依赖 `prettier eslint-config-prettier eslint-plugin-prettier`
@@ -449,7 +466,7 @@ module.exports = {
 
 **方式 2:**
 
-- vs code 安装 eslint 插件和 prettier-code 插件。设置如下配置。preferences —— setting。
+- vs code 安装 eslint 插件和 prettier-code 插件。设置如下配置。preferences —— setting —— 点击右上角的图标打开 json 文件。
 
 ```
 // 保存自动格式化
@@ -613,3 +630,40 @@ plugins: [
   new CleanWebpackPlugin()
 ]
 ```
+
+#### 十、tree shaking 优化代码
+
+#### 十一、sourcemap 使用
+
+#### 十二、提取公共页面资源
+
+#### 十三、代码分割动态加载
+
+#### 一些特别的，有趣的问题。
+
+1、 webpack 的 alias 设置 + tsconfig.json 的配置，导致 vscode 对于通过别名的方式引入的模块提示 can't find。
+
+[tsconfig 的配置](http://www.typescriptlang.org/docs/handbook/compiler-options.html)
+
+报错代码`import Gallery from '@/pages/gallery/index'`
+
+**解决**
+
+```
+// 假如webpack.config.js配置如下
+alias: {
+  '@': path.resolve(__dirname, '../src/')
+}
+
+// tsconfig.json 需要做如下配置才能避免提示，/* 不可以少。
+"paths": {
+  "@/*": ["./src/*"]
+}
+
+```
+
+#### 尾声，可以了解，但是该文档里没做的事情。
+
+1、css 内联，html 内联，js 内联，通过内联减少 http 请求，进而提升性能。
+
+css 内联需要安装`style-loader 和 html-inline-css-webpack-plugin`

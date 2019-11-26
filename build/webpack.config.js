@@ -2,7 +2,7 @@
 const path = require('path')
 const FriendlyErrorsWebpackPlugin = require('friendly-errors-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
-const CleanWebpackPlugin = require('clean-webpack-plugin')
+const {CleanWebpackPlugin} = require('clean-webpack-plugin')
 module.exports = {
   entry: path.join(__dirname, '../src/index.tsx'),
   output: {
@@ -19,7 +19,7 @@ module.exports = {
     rules: [
       {
         test: /\.js$/,
-        use: ['babel-loader'],
+        use: ['babel-loader', 'eslint-loader'],
         include: path.join(__dirname, '../src')
       },
       {
@@ -28,7 +28,7 @@ module.exports = {
       },
       {
         test: /\.(j|t)sx?$/,
-        use: ['babel-loader']
+        use: ['babel-loader', 'eslint-loader']
       },
       // {
       //   enforce: 'pre',
@@ -96,6 +96,7 @@ module.exports = {
     port: 8099,
     historyApiFallback: true,
     overlay: {
+      warnings: true,
       errors: true
     },
     inline: true,
