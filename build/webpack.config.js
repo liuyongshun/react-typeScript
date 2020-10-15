@@ -4,13 +4,12 @@ const FriendlyErrorsWebpackPlugin = require('friendly-errors-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const {CleanWebpackPlugin} = require('clean-webpack-plugin')
 module.exports = {
-  entry: path.join(__dirname, '../src/index.tsx'),
+  entry: path.join(__dirname, '../src/index.js'),
   output: {
     filename: '[name]_[hash:8].js',
     path: path.join(__dirname, '../dist')
   },
   resolve: {
-    extensions: ['.ts', '.tsx', '.js', '.json', '.styl'],
     alias: {
       '@': path.resolve(__dirname, '../src/')
     }
@@ -18,17 +17,13 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.js$/,
-        use: ['babel-loader', 'eslint-loader'],
+        test: /\.jsx?$/,
+        use: ['babel-loader'],
         include: path.join(__dirname, '../src')
       },
       {
         test: /\.css$/,
         use: ['style-loader', 'css-loader']
-      },
-      {
-        test: /\.(j|t)sx?$/,
-        use: ['babel-loader', 'eslint-loader']
       },
       // {
       //   enforce: 'pre',
