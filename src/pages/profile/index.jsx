@@ -1,6 +1,6 @@
-import React, { Component } from 'react'
+import React, { PureComponent } from 'react'
 
-class Profile extends Component {
+class Profile extends PureComponent {
   render() {
     return (
       <ul>

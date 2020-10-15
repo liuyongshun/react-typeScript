@@ -1,20 +1,18 @@
-/** @format */
-
 import Home from '@/pages/home/index'
-import Nav from '@/components/nav'
+// import Nav from '@/components/nav'
 import Profile from '@/pages/profile/index'
 import Message from '@/pages/message/index'
 import Gallery from '@/pages/gallery/index'
 
 export default [
+  // {
+  //   path: '/',
+  //   exact: true,
+  //   name: 'nav',
+  //   component: Nav
+  // },
   {
     path: '/',
-    exact: true,
-    name: 'nav',
-    component: Nav
-  },
-  {
-    path: '/home',
     exact: true,
     name: 'homePage',
     component: Home

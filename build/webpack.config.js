@@ -4,17 +4,14 @@ const FriendlyErrorsWebpackPlugin = require('friendly-errors-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 module.exports = {
-  entry: path.join(__dirname, '../src/index.js'),
+  entry: path.join(__dirname, '../src/index.jsx'),
   output: {
     filename: '[name]_[hash:8].js',
     path: path.join(__dirname, '../dist')
   },
   devtool: 'source-map',
   resolve: {
-<<<<<<< HEAD
-    extensions: ['.ts', '.tsx', '.js', '.json', '.scss'],
-=======
->>>>>>> 61191d896a23df0ca569ed8520bf3cf36b2dcf0b
+    extensions: ['.js', '.jsx'],
     alias: {
       '@': path.resolve(__dirname, '../src/')
     }
@@ -22,41 +19,20 @@ module.exports = {
   module: {
     rules: [
       {
-<<<<<<< HEAD
-        test: /\.css$/,
-        use: ['style-loader', 'css-loader']
-      },
-      {
-        test: /\.scss$/,
-        use: [
-          'style-loader',
-          'css-loader',
-          'sass-loader'
-          // {
-          //   loader: 'sass-resources-loader',
-          //   options: {
-          //     resources: '../src/style/variable.scss'
-          //   }
-          // }
-        ]
-      },
-      {
-        test: /\.js$/,
-        use: ['babel-loader', 'eslint-loader'],
-        include: path.join(__dirname, '../src')
-      },
-      {
-        test: /\.(j|t)sx?$/,
-        use: ['babel-loader', 'eslint-loader']
-=======
         test: /\.jsx?$/,
-        use: ['babel-loader'],
+        use: ['babel-loader', 'eslint-loader'],
+          // {
+          //   loader: ['babel-loader', 'eslint-loader'],
+          //   // options: {
+          //   //   presets: ['@babel/preset-react', '@babel/preset-env']
+          //   // }
+          // }
+        // ],
         include: path.join(__dirname, '../src')
       },
       {
         test: /\.css$/,
         use: ['style-loader', 'css-loader']
->>>>>>> 61191d896a23df0ca569ed8520bf3cf36b2dcf0b
       },
       // {
       //   enforce: 'pre',

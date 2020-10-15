@@ -9,7 +9,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 
 module.exports = {
-  entry: path.join(__dirname, '../src/index.js'),
+  entry: path.join(__dirname, '../src/index.jsx'),
   output: {
     filename: '[name]_[hash:8].js',
     path: path.join(__dirname, '../dist')
@@ -24,7 +24,7 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.js$/,
+        test: /\.jsx?$/,
         use: ['babel-loader'],
         include: path.join(__dirname, '../src')
       },
@@ -32,10 +32,10 @@ module.exports = {
         test: /\.css$/,
         use: [MiniCss.loader, 'css-loader']
       },
-      {
-        test: /\.(j|t)sx?$/,
-        use: ['babel-loader']
-      },
+      // {
+      //   test: /\.(j|t)sx?$/,
+      //   use: ['babel-loader']
+      // },
       // {
       //   enforce: 'pre',
       //   test: /\.js$/,

@@ -722,3 +722,52 @@ alias: {
 1、css 内联，html 内联，js 内联，通过内联减少 http 请求，进而提升性能。
 
 css 内联需要安装`style-loader 和 html-inline-css-webpack-plugin`
+
+
+<!-- =========== -->
+解决 airbnb配置 eslint不识别webpack的路径别名
+
+`eslint-import-resolver-webpack`
+
+```
+// eslintrc.js
+
+settings: {
+    'import/resolver': {
+      webpack: {
+        config: './build/webpack.config.js'
+      }
+    }
+  },
+```
+
+<!-- ====== -->
+@babel/preset-react jsx语法糖的支持。始终包含以下插件：
+
+```
+@ babel / plugin-syntax-jsx
+@ babel / plugin-transform-react-jsx
+@ babel / plugin-transform-react-display-name
+```
+
+<!-- ====== -->
+@babel/preset-env
+
+@babel/preset-env是一个智能的babel预设, 让你能使用最新的JavaScript语法, 它会帮你转换成代码的目标运行环境支持的语法,
+
+<!-- ===== -->
+@babel/plugin-proposal-class-properties类属性提案，如果使用尖头函数需要使用该插件
+
+```
+
+class Main extends PureComponent {
+  // 尖头
+  dd = () => {}
+  render() {
+    return (
+      <div>333</div>
+    )
+  }
+}
+
+```

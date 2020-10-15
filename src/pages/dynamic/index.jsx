@@ -1,6 +1,6 @@
-import React, { Component } from 'react'
+import React, { PureComponent } from 'react'
 
-class Dynamic extends Component {
+class Dynamic extends    PureComponent {
   render() {
     return (
       <ul>

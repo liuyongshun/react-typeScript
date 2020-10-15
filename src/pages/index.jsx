@@ -1,12 +1,9 @@
-import React, { Component } from 'react'
+import React, { PureComponent } from 'react'
 import { HashRouter, Route, Switch } from 'react-router-dom'
 import Main from './main'
 import '../style/common.css'
-// import '../style/less.less'
-// import '../style/sass.scss'
-// import '../style/stylus.styl'
 
-class App extends Component {
+class App extends PureComponent {
   render() {
     return (
       <div>
