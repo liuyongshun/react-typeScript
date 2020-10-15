@@ -7,15 +7,15 @@ const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')
+
 module.exports = {
-  entry: path.join(__dirname, '../src/index.tsx'),
+  entry: path.join(__dirname, '../src/index.js'),
   output: {
     filename: '[name]_[hash:8].js',
     path: path.join(__dirname, '../dist')
   },
   mode: 'none',
   resolve: {
-    extensions: ['.ts', '.tsx', '.js', '.json', '.styl'],
     alias: {
       '@': path.resolve(__dirname, '../src/')
     }
@@ -50,18 +50,18 @@ module.exports = {
       //     'less-loader'
       //   ]
       // },
-      // {
-      //   test: /\.scss$/,
-      //   use: [
-      //     'style-loader',
-      //     'css-loader',
-      //     'sass-loader'
-      //   ]
-      // },
       {
-        test: /\.styl$/,
-        use: [MiniCss.loader, 'css-loader', 'stylus-loader']
+        test: /\.scss$/,
+        use: [
+          'style-loader',
+          'css-loader',
+          'sass-loader'
+        ]
       },
+      // {
+      //   test: /\.styl$/,
+      //   use: [MiniCss.loader, 'css-loader', 'stylus-loader']
+      // },
       {
         test: /\.(png|svg|jpg|git)$/,
         use: [
