@@ -1,5 +1,6 @@
 /** @format */
 const path = require('path')
+const webpack = require('webpack')
 const FriendlyErrorsWebpackPlugin = require('friendly-errors-webpack-plugin')
 const MiniCss = require('mini-css-extract-plugin')
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
@@ -12,14 +13,14 @@ module.exports = {
     filename: '[name]_[hash:8].js',
     path: path.join(__dirname, '../dist')
   },
-  mode: 'production',
+  mode: 'none',
   resolve: {
     extensions: ['.ts', '.tsx', '.js', '.json', '.styl'],
     alias: {
       '@': path.resolve(__dirname, '../src/')
     }
   },
-  devtool: 'eval',
+  devtool: 'none',
   module: {
     rules: [
       {
@@ -91,32 +92,33 @@ module.exports = {
     new HtmlWebpackPlugin({
       filename: 'index.html',
       template: 'public/index.html',
-      inject: true,
-      minify: {
-        minifyCSS: true,
-        minifyJS: true,
-        html5: true,
-        collapseWhitespace: true,
-        preserveLineBreaks: true,
-        removeComments: true
-      }
+      inject: true
+      // minify: {
+      //   minifyCSS: true,
+      //   minifyJS: true,
+      //   html5: true,
+      //   collapseWhitespace: true,
+      //   preserveLineBreaks: true,
+      //   removeComments: true
+      // }
     }),
     new MiniCss({
       filename: '[name]_[contenthash:8].css'
     }),
     new FriendlyErrorsWebpackPlugin(),
-    new UglifyJsPlugin(),
+    // new UglifyJsPlugin(),
     new OptimizeCSSAssetsPlugin(),
-    new CleanWebpackPlugin()
-  ],
-  devServer: {
-    host: 'localhost',
-    port: 8099,
-    historyApiFallback: true,
-    overlay: {
-      errors: true
-    },
-    inline: true,
-    hot: true
-  }
+    new CleanWebpackPlugin(),
+    new webpack.optimize.ModuleConcatenationPlugin()
+  ]
+  // devServer: {
+  //   host: 'localhost',
+  //   port: 8099,
+  //   historyApiFallback: true,
+  //   overlay: {
+  //     errors: true
+  //   },
+  //   inline: true,
+  //   hot: true
+  // }
 }

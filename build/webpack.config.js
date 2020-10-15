@@ -2,15 +2,16 @@
 const path = require('path')
 const FriendlyErrorsWebpackPlugin = require('friendly-errors-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
-const {CleanWebpackPlugin} = require('clean-webpack-plugin')
+const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 module.exports = {
   entry: path.join(__dirname, '../src/index.tsx'),
   output: {
     filename: '[name]_[hash:8].js',
     path: path.join(__dirname, '../dist')
   },
+  devtool: 'source-map',
   resolve: {
-    extensions: ['.ts', '.tsx', '.js', '.json', '.styl'],
+    extensions: ['.ts', '.tsx', '.js', '.json', '.scss'],
     alias: {
       '@': path.resolve(__dirname, '../src/')
     }
@@ -18,13 +19,27 @@ module.exports = {
   module: {
     rules: [
       {
+        test: /\.css$/,
+        use: ['style-loader', 'css-loader']
+      },
+      {
+        test: /\.scss$/,
+        use: [
+          'style-loader',
+          'css-loader',
+          'sass-loader'
+          // {
+          //   loader: 'sass-resources-loader',
+          //   options: {
+          //     resources: '../src/style/variable.scss'
+          //   }
+          // }
+        ]
+      },
+      {
         test: /\.js$/,
         use: ['babel-loader', 'eslint-loader'],
         include: path.join(__dirname, '../src')
-      },
-      {
-        test: /\.css$/,
-        use: ['style-loader', 'css-loader']
       },
       {
         test: /\.(j|t)sx?$/,
@@ -45,17 +60,9 @@ module.exports = {
       //   ]
       // },
       // {
-      //   test: /\.scss$/,
-      //   use: [
-      //     'style-loader',
-      //     'css-loader',
-      //     'sass-loader'
-      //   ]
+      //   test: /\.styl$/,
+      //   use: ['style-loader', 'css-loader', 'stylus-loader']
       // },
-      {
-        test: /\.styl$/,
-        use: ['style-loader', 'css-loader', 'stylus-loader']
-      },
       {
         test: /\.(png|svg|jpg|git)$/,
         use: [

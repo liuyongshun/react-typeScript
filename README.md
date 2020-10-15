@@ -186,6 +186,19 @@ head内增加
 
 ```
 
+3、 dev 环境开启 sourcemap 功能，方便调试。
+
+```
+devtool: 'source-map'
+```
+
+4、css 变量全局引入
+
+```
+//
+
+```
+
 #### 五、配置样式，less 或 sass 或 stylus。
 
 1、安装依赖 `css-loader` 加载.css 文件，并转换成 commonjs 对象。安装`style-loader`，将样式通过 style 标签插入 head 标签内。
@@ -631,13 +644,55 @@ plugins: [
 ]
 ```
 
-#### 十、tree shaking 优化代码
+#### 十、tree shaking 优化代码， 一些饮用了但是没有实际使用的变量等不被打包进去。
 
-#### 十一、sourcemap 使用
+webpack4 mode 模式设置为 production 即可。
+
+#### 十一、scope hoisting 代码必须是 es6 ，如果是 cjs 则不行。
+
+webpack 4 mode 模式设置为 production 即可。
+
+或
+
+```
+const webpack = require('webpack')
+plugins: [
+  new webpack.optimize.ModuleConcatenationPlugin()
+]
+```
+
+webpack 3 使用
+
+```
+const ModuleConcatenationPlugin = require('webpack/lib/optimize/ModuleConcatenationPlugin');
+module.exports = {
+  plugins: [
+    new ModuleConcatenationPlugin(),
+  ],
+};
+```
 
 #### 十二、提取公共页面资源
 
-#### 十三、代码分割动态加载
+#### 十三、react (不是 ts)代码分割动态加载
+
+1、安装依赖`@babel/plugin-syntax-dynamic-import`
+
+2、在 babel 的配置里导入相应插件。
+
+```
+  plugins: ['@babel/plugin-syntax-dynamic-import']
+```
+
+3、使用， 使用动态后，打包会生产单独的 js 文件。
+
+```
+import('../dynamic').then(res => {
+  this.setState({
+    Text: res.default
+  })
+})
+```
 
 #### 一些特别的，有趣的问题。
 

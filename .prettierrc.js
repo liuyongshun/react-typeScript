@@ -10,6 +10,5 @@ module.exports = {
   insertPragma: false,
   tabWidth: 2,
   alwaysParens: 'always',
-  trailingCommas: 'es5',
   useTabs: false
 }
