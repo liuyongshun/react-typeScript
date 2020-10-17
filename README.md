@@ -771,3 +771,31 @@ class Main extends PureComponent {
 }
 
 ```
+
+<!-- ==================== -->
+// 1. 不会刷新浏览器
+$ webpack-dev-server
+//2. 刷新浏览器
+$ webpack-dev-server --inline
+//3. 重新加载改变的部分，不会刷新页面
+$ webpack-dev-server --hot
+//4. 重新加载改变的部分，HRM失败则刷新页面
+$ webpack-dev-server  --inline --hot
+
+[dev-server全套配置](https://webpack.docschina.org/configuration/dev-server/#devserver)
+
+webpack-dev-middleware详解
+
+为什么要使用 webpack-dev-middleware
+
+webpack 的 watch mode 虽然能监听文件的变更，并且自动打包，但是每次打包后的结果将会存储到本地硬盘中，而 IO 操作是非常耗资源时间的，无法满足本地开发调试需求。
+
+而 webpack-dev-middleware 拥有以下几点特性：
+
+以 watch mode 启动 webpack，监听的资源一旦发生变更，便会自动编译，生产最新的 bundle
+在编译期间，停止提供旧版的 bundle 并且将请求延迟到最新的编译结果完成之后
+webpack 编译后的资源会存储在内存中，当用户请求资源时，直接于内存中查找对应资源，减少去硬盘中查找的 IO 操作耗时
+
+
+<!--  -->
+ajax 和 axios 和 fetch
