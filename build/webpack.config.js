@@ -21,37 +21,12 @@ module.exports = {
       {
         test: /\.jsx?$/,
         use: ['babel-loader', 'eslint-loader'],
-          // {
-          //   loader: ['babel-loader', 'eslint-loader'],
-          //   // options: {
-          //   //   presets: ['@babel/preset-react', '@babel/preset-env']
-          //   // }
-          // }
-        // ],
         include: path.join(__dirname, '../src')
       },
       {
         test: /\.css$/,
         use: ['style-loader', 'css-loader']
       },
-      // {
-      //   enforce: 'pre',
-      //   test: /\.js$/,
-      //   loader: 'source-map-loader'
-      // },
-
-      // {
-      //   test: /\.less$/,
-      //   use: [
-      //     'style-loader',
-      //     'css-loader',
-      //     'less-loader'
-      //   ]
-      // },
-      // {
-      //   test: /\.styl$/,
-      //   use: ['style-loader', 'css-loader', 'stylus-loader']
-      // },
       {
         test: /\.(png|svg|jpg|git)$/,
         use: [

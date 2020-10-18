@@ -1,9 +1,23 @@
-import React, { PureComponent } from 'react'
+import React, { useState, useEffect } from 'react'
+import { login } from '@/API/login'
 
-class Home extends PureComponent {
-  render() {
-    return <div>dd</div>
-  }
+const Home = () => {
+  const [isLogin, setIsLogin] = useState(false)
+  useEffect(() => {
+    login({
+      userName: '七月',
+      password: 'kuaile0333'
+    }).then(res => {
+      setIsLogin(true)
+      console.log(res)
+    })
+  }, [])
+  return (
+    <div>
+      当前是否登陆
+      {isLogin ? '是' : '否'}
+    </div>
+  )
 }
 
 export default Home
