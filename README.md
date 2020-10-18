@@ -797,5 +797,141 @@ webpack 的 watch mode 虽然能监听文件的变更，并且自动打包，但
 webpack 编译后的资源会存储在内存中，当用户请求资源时，直接于内存中查找对应资源，减少去硬盘中查找的 IO 操作耗时
 
 
+### postcss-preset-env
+postcss-preset-env允许开发者使用最新的CSS语法而不用担心浏览器兼容性
+#### webpack 的stats
+
 <!--  -->
 ajax 和 axios 和 fetch
+
+#### browserslist 是在不同的前端工具之间共用目标浏览器和 node 版本的配置工具。它主要被以下工具使用：
+
+Autoprefixer
+Babel
+post-preset-env
+eslint-plugin-compat
+stylelint-unsupported-browser-features
+postcss-normalize
+
+browserslist示例 演示了上面列举的每个工具是如何使用 browserslist 的。所有的工具将自动的查找当前工程规划的目标浏览器范围，前提是你在前端工程的 package.json 里面增加如下配置：
+
+```
+{
+  "browserslist": [
+    "last 1 version",
+    "> 1%",
+    "maintained node versions",
+    "not dead"
+  ]
+}
+```
+
+复制代码或者在工程的根目录下存在.browerslistrc配置文件（内容如下）：
+
+```
+# 注释
+last 1 version
+> 1%
+maintained node versions
+not dead
+```
+
+查询来源
+browerslist 将使用如下配置文件限定的的浏览器和 node 版本范围：
+
+工具 options，例如 Autoprefixer 工具配置中的 browsers 属性。
+BROWERSLIST 环境变量。
+当前目录或者上级目录的browserslist配置文件。
+当前目录或者上级目录的browserslistrc配置文件。
+当前目录或者上级目录的package.json配置文件里面的browserslist配置项（推荐）。
+如果上述的配置文件缺失或者其他因素导致未能生成有效的配置，browserslist 将使用默认配置> 0.5%, last 2 versions, Firefox ESR, not dead。
+
+
+### speed-measure-webpack-plugin
+
+使用：
+
+```
+const SpeedMeasure = require('speed-measure-webpack-plugin')
+const smp = new SpeedMeasure()
+const webpackConfig = {
+  entry: 'index.js',
+  output: {
+    filename: 'index.js',
+    path: path.join(__dirname, '../dist')
+  },
+}
+module.exports = smp.wrap(webpackConfig)
+```
+
+分析loader 和插件的执行时间
+
+#### webpack-bundle-analyzer 分析bundle体积大小
+
+使用：
+```
+const WebpackBundleAnalyzer = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
+plugins: [
+    new WebpackBundleAnalyzer(),
+  ]
+```
+
+### 多进程/多实例构建，资源并行解析方案
+
+HappyPack（webpack3常用，作者维护的越来越少了） 或 parallel-webpack 或 thread-loader （webpack官方）
+
+### 多进程/多实例并行压缩
+
+parallel-uglify-plugin 和 uglilys-webpack-plugin（不支持es6） 和 terser-webpack-plugin(支持es6压缩)
+提升打包构建速度
+
+### 分包，预编译资源模块 externals
+
+html-webpack-externals-plugin 或 DLLPlugin 或 webpack的externals字断
+
+**DllPlugin**
+
+1、 创建webpack.dll.js
+
+```
+const path = require('path');
+const webpack = require('webpack');
+
+module.exports = {
+    entry: {
+        library: [
+            'react',
+            'react-dom'
+        ]
+    },
+    output: {
+        filename: '[name]_[chunkhash].dll.js',
+        path: path.join(__dirname, '../library'),
+        library: '[name]'
+    },
+    mode: 'production',
+    plugins: [
+        new webpack.DllPlugin({
+            name: '[name]_[hash]',
+            path: path.join(__dirname, '../library/[name].json')
+        })
+    ]
+};
+
+```
+2、执行构建 `webpack --config build/webpack.dll.js`
+
+3、在webpack.pro.js中plugin 引入
+
+```
+// 通过 DllReferencePlugin 对 mainfest.json引用，引入
+new webpack.DllReferencePlugin({
+  manifest: require('../library/library.json')
+}),
+```
+
+**webpack的externals字断**
+
+防止将某些 import 的包(package)打包到 bundle 中，而是在运行时(runtime)再去从外部获取这些扩展依赖(external dependencies)
+
+

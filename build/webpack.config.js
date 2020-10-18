@@ -1,12 +1,13 @@
-/** @format */
 const path = require('path')
 const FriendlyErrorsWebpackPlugin = require('friendly-errors-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')
+const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+
 module.exports = {
   entry: path.join(__dirname, '../src/index.jsx'),
   output: {
-    filename: '[name]_[hash:8].js',
+    filename: '[name]_[chunkhash:8].js',
     path: path.join(__dirname, '../dist')
   },
   devtool: 'source-map',
@@ -25,7 +26,39 @@ module.exports = {
       },
       {
         test: /\.css$/,
-        use: ['style-loader', 'css-loader']
+        use: [
+          MiniCssExtractPlugin.loader,
+          'css-loader',
+          'postcss-loader'
+        ],
+      },
+      {
+        test: /\.less$/,
+        use: [
+          MiniCssExtractPlugin.loader,
+          'css-loader',
+          'less-loader',
+          {
+            loader: 'postcss-loader',
+            options: {
+              postcssOptions: {
+                plugins: [
+                  [
+                    'postcss-preset-env',
+                    'autoprefixer',
+                  ],
+                ],
+              },
+            },
+          },
+          {
+            loader: 'px2rem-loader',
+            options: {
+              remUnit: 75,
+              remPrecision: 8,
+            },
+          },
+        ],
       },
       {
         test: /\.(png|svg|jpg|git)$/,
@@ -58,6 +91,9 @@ module.exports = {
       filename: 'index.html',
       template: 'public/index.html',
       inject: true
+    }),
+    new MiniCssExtractPlugin({
+      filename: '[name]_[contenthash:8].css',
     }),
     new CleanWebpackPlugin(),
     new FriendlyErrorsWebpackPlugin()

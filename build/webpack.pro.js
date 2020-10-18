@@ -1,67 +1,78 @@
-/** @format */
 const path = require('path')
 const webpack = require('webpack')
+// const merge = require('webpack-merge')
 const FriendlyErrorsWebpackPlugin = require('friendly-errors-webpack-plugin')
 const MiniCss = require('mini-css-extract-plugin')
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')
+// const WebpackBundleAnalyzer = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
+const SpeedMeasure = require('speed-measure-webpack-plugin')
+const smp = new SpeedMeasure()
 
-module.exports = {
+const config = {
   entry: path.join(__dirname, '../src/index.jsx'),
   output: {
-    filename: '[name]_[hash:8].js',
+    filename: '[name]_[chunkhash:8].js',
     path: path.join(__dirname, '../dist')
   },
-  mode: 'none',
+  mode: 'production',
+  stats: 'normal',
   resolve: {
+    extensions: ['.js', '.jsx'],
     alias: {
       '@': path.resolve(__dirname, '../src/')
     }
   },
-  devtool: 'none',
+  devtool: 'source-map',
   module: {
     rules: [
       {
         test: /\.jsx?$/,
-        use: ['babel-loader'],
+        use: [
+          {
+            loader: 'thread-loader',
+            options: {
+              workers: 2,
+            }
+          },
+          'babel-loader'
+        ],
         include: path.join(__dirname, '../src')
       },
       {
         test: /\.css$/,
-        use: [MiniCss.loader, 'css-loader']
+        use: [MiniCss.loader, 'css-loader', 'postcss-loader']
       },
-      // {
-      //   test: /\.(j|t)sx?$/,
-      //   use: ['babel-loader']
-      // },
-      // {
-      //   enforce: 'pre',
-      //   test: /\.js$/,
-      //   loader: 'source-map-loader'
-      // },
-
-      // {
-      //   test: /\.less$/,
-      //   use: [
-      //     'style-loader',
-      //     'css-loader',
-      //     'less-loader'
-      //   ]
-      // },
       {
-        test: /\.scss$/,
+        test: /\.less$/,
         use: [
-          'style-loader',
+          MiniCss.loader,
           'css-loader',
-          'sass-loader'
-        ]
+          'less-loader',
+          {
+            loader: 'postcss-loader',
+            options: {
+              postcssOptions: {
+                plugins: [
+                  [
+                    'postcss-preset-env',
+                    'autoprefixer',
+                  ],
+                ],
+              },
+            },
+          },
+          {
+            loader: 'px2rem-loader',
+            options: {
+              remUnit: 75,
+              remPrecision: 8,
+            },
+          },
+        ],
       },
-      // {
-      //   test: /\.styl$/,
-      //   use: [MiniCss.loader, 'css-loader', 'stylus-loader']
-      // },
       {
         test: /\.(png|svg|jpg|git)$/,
         use: [
@@ -69,7 +80,7 @@ module.exports = {
             loader: 'url-loader',
             options: {
               limit: 10240,
-              name: path.join('img/[name][hash:7].[ext]')
+              name: path.join('img/[name][hash:8].[ext]')
             }
           }
         ]
@@ -81,7 +92,7 @@ module.exports = {
             loader: 'url-loader',
             options: {
               limit: 10240,
-              name: path.join('img/[name][hash:7].[ext]')
+              name: path.join('img/[name][hash:8].[ext]')
             }
           }
         ]
@@ -106,19 +117,17 @@ module.exports = {
       filename: '[name]_[contenthash:8].css'
     }),
     new FriendlyErrorsWebpackPlugin(),
-    // new UglifyJsPlugin(),
+    new UglifyJsPlugin({
+      parallel: true
+    }),
+    new webpack.DllReferencePlugin({
+      manifest: require('../library/library.json')
+    }),
     new OptimizeCSSAssetsPlugin(),
     new CleanWebpackPlugin(),
+    // new WebpackBundleAnalyzer(),
     new webpack.optimize.ModuleConcatenationPlugin()
   ]
-  // devServer: {
-  //   host: 'localhost',
-  //   port: 8099,
-  //   historyApiFallback: true,
-  //   overlay: {
-  //     errors: true
-  //   },
-  //   inline: true,
-  //   hot: true
-  // }
 }
+
+module.exports = smp.wrap(config)

@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react'
 import { HashRouter, Route, Switch } from 'react-router-dom'
 import Main from './main'
-import '../style/common.css'
+import '../style/common.less'
 
 class App extends PureComponent {
   render() {
