@@ -950,7 +950,14 @@ plugins: [
 ]
 ```
 
-#### 缩小构建目标
+#### 缩小构建目标，打包作用域
+
+exclude/include (确定 loader 规则范围)
+resolve.modules 指明第三方模块的绝对路径 (减少不必要的查找)
+resolve.extensions 尽可能减少后缀尝试的可能性
+noParse 对完全不需要解析的库进行忽略 (不去解析但仍会打包到 bundle 中，注意被忽略掉的文件里不应该包含 import、require、define 等模块化语句)
+IgnorePlugin (完全排除模块)
+合理使用alias
 
 - babel-loader 不要解析node_modules,配置排除文件
 
@@ -975,3 +982,45 @@ resolve: {
   mainFields: ['main']
 }
 ```
+
+### 树摇优化 tree shaking
+
+tree shaking 会把用到的方法打到bundle。没用的方法会在uglify阶段擦除。
+
+webpack mode 的 production 默认开启
+
+**无用的css擦除**
+
+purifyCSS 遍历迭代，识别已用到的css class。purgecss-webpack-plugin 和 mini-css-extract-plugin配合使用
+
+```
+const PurgeCSSPlugin = require('purgecss-webpack-plugin')
+const glob = require('glob')
+
+const PATHS = {
+  src: path.join(__dirname, '../src')
+}
+
+plugins: [
+     new PurgeCSSPlugin({
+      paths: glob.sync(`${PATHS.src}/**/*`,  { nodir: true }),
+    }),
+]
+```
+
+#### 图片压缩
+
+image-webpack-loader
+
+
+### noParse
+
+不去解析某个库内部的依赖关系
+比如jquery 这个库是独立的， 则不去解析这个库内部依赖的其他的东西
+在独立库的时候可以使用
+module.exports = {
+  module: {
+    noParse: /jquery/,
+    rules:[]
+  }
+}

@@ -1,4 +1,5 @@
 const path = require('path')
+const glob = require('glob')
 const webpack = require('webpack')
 // const merge = require('webpack-merge')
 const FriendlyErrorsWebpackPlugin = require('friendly-errors-webpack-plugin')
@@ -7,10 +8,15 @@ const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')
-// const WebpackBundleAnalyzer = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
+const WebpackBundleAnalyzer = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
 const HardSourceWebpackPlugin = require('hard-source-webpack-plugin')
 const SpeedMeasure = require('speed-measure-webpack-plugin')
+const PurgeCSSPlugin = require('purgecss-webpack-plugin')
 const smp = new SpeedMeasure()
+
+const PATHS = {
+  src: path.join(__dirname, '../src')
+}
 
 const config = {
   entry: path.join(__dirname, '../src/index.jsx'),
@@ -36,6 +42,10 @@ const config = {
       {
         test: /\.jsx?$/,
         use: [
+          {
+            loader: 'babel-loader',
+            options: {}
+          },
           {
             loader: 'thread-loader',
             options: {
@@ -82,12 +92,18 @@ const config = {
         test: /\.(png|svg|jpg|git)$/,
         use: [
           {
-            loader: 'url-loader',
+            loader: 'file-loader',
             options: {
               limit: 10240,
               name: path.join('img/[name][hash:8].[ext]')
             }
-          }
+          },
+          {
+            loader: 'image-webpack-loader',
+            options: {
+              disable: false,
+            }
+          },
         ]
       },
       {
@@ -130,8 +146,11 @@ const config = {
     }),
     new HardSourceWebpackPlugin(),
     new OptimizeCSSAssetsPlugin(),
+    new PurgeCSSPlugin({
+      paths: glob.sync(`${PATHS.src}/**/*`,  { nodir: true }),
+    }),
     new CleanWebpackPlugin(),
-    // new WebpackBundleAnalyzer(),
+    new WebpackBundleAnalyzer(),
     new webpack.optimize.ModuleConcatenationPlugin()
   ]
 }
