@@ -882,7 +882,7 @@ HappyPack（webpack3常用，作者维护的越来越少了） 或 parallel-webp
 
 ### 多进程/多实例并行压缩
 
-parallel-uglify-plugin 和 uglilys-webpack-plugin（不支持es6） 和 terser-webpack-plugin(支持es6压缩)
+parallel-uglify-plugin 和 uglilys-webpack-plugin（不支持es6） 和 terser-webpack-plugin(支持es6压缩,推荐)
 提升打包构建速度
 
 ### 分包，预编译资源模块 externals
@@ -935,3 +935,43 @@ new webpack.DllReferencePlugin({
 防止将某些 import 的包(package)打包到 bundle 中，而是在运行时(runtime)再去从外部获取这些扩展依赖(external dependencies)
 
 
+#### 二次构建速度，缓存思路
+
+babel-loader 缓存开启
+
+terser-webpack-plugin 缓存
+
+使用cache-loader或hard-source-webpack-plugin 二次构建速度提升极大
+
+```
+const HardSourceWebpackPlugin = require('hard-source-webpack-plugin')
+plugins: [
+  new FriendlyErrorsWebpackPlugin(),
+]
+```
+
+#### 缩小构建目标
+
+- babel-loader 不要解析node_modules,配置排除文件
+
+- 减少文件搜索范围，优化resolve.modules配置， 减少模块搜索层级
+
+webpack 模块解释类似node。现在当前项目找，再去node_modules。因此通过手动指定减少查找层级。第三方包都在node_modules。没必要进行路径分析。
+
+- 优化resolve.mainFields配置
+
+查找入口文件，会根据package.json去查找。直接去查找main字断减少不必要的分析过程。package.json没有main。会先找根目录下的index
+
+- 优化resolve.extensions配置
+
+配置拓展，自动不全拓展名。减少文件的查找类型范围。
+
+```
+resolve: {
+  alias: {
+    react: path.resolve(__dirname, './node_modules/react/dist/react.min.js')
+  },
+  modules: [path.resolve(__dirname, 'node_modules')],
+  mainFields: ['main']
+}
+```

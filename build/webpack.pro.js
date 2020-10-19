@@ -8,6 +8,7 @@ const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 // const WebpackBundleAnalyzer = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
+const HardSourceWebpackPlugin = require('hard-source-webpack-plugin')
 const SpeedMeasure = require('speed-measure-webpack-plugin')
 const smp = new SpeedMeasure()
 
@@ -22,8 +23,12 @@ const config = {
   resolve: {
     extensions: ['.js', '.jsx'],
     alias: {
-      '@': path.resolve(__dirname, '../src/')
-    }
+      '@': path.resolve(__dirname, '../src/'),
+      'react': path.resolve(__dirname, '../node_modules/react/cjs/react.production.min.js'),
+      'react-dom': path.resolve(__dirname, '../node_modules/react-dom/cjs/react-dom.production.min.js')
+    },
+    modules: [path.resolve(__dirname, '../node_modules')],
+    mainFields: ['main']
   },
   devtool: 'source-map',
   module: {
@@ -37,7 +42,7 @@ const config = {
               workers: 2,
             }
           },
-          'babel-loader'
+          'babel-loader?cacheDirectory=true'
         ],
         include: path.join(__dirname, '../src')
       },
@@ -123,6 +128,7 @@ const config = {
     new webpack.DllReferencePlugin({
       manifest: require('../library/library.json')
     }),
+    new HardSourceWebpackPlugin(),
     new OptimizeCSSAssetsPlugin(),
     new CleanWebpackPlugin(),
     // new WebpackBundleAnalyzer(),
