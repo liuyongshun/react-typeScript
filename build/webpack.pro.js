@@ -11,6 +11,7 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 const WebpackBundleAnalyzer = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
 const HardSourceWebpackPlugin = require('hard-source-webpack-plugin')
 const SpeedMeasure = require('speed-measure-webpack-plugin')
+// const TerserPlugin = require('terser-webpack-plugin')
 const PurgeCSSPlugin = require('purgecss-webpack-plugin')
 const smp = new SpeedMeasure()
 
@@ -44,15 +45,16 @@ const config = {
         use: [
           {
             loader: 'babel-loader',
-            options: {}
+            options: {
+              cacheDirectory: true
+            }
           },
           {
             loader: 'thread-loader',
             options: {
               workers: 2,
             }
-          },
-          'babel-loader?cacheDirectory=true'
+          }
         ],
         include: path.join(__dirname, '../src')
       },
@@ -101,7 +103,8 @@ const config = {
           {
             loader: 'image-webpack-loader',
             options: {
-              disable: false,
+              // 只在 production 启用
+              disable: process.env.NODE_ENV === 'production' ? false : true
             }
           },
         ]
@@ -152,7 +155,15 @@ const config = {
     new CleanWebpackPlugin(),
     new WebpackBundleAnalyzer(),
     new webpack.optimize.ModuleConcatenationPlugin()
-  ]
+  ],
+  // optimization: {
+  //   minimize: true,
+  //   minimizer: [
+  //     new TerserPlugin({
+  //       parallel: 4,
+  //     }),
+  //   ],
+  // },
 }
 
 module.exports = smp.wrap(config)

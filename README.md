@@ -311,8 +311,6 @@ import '../style/common.css'
 **配置`.eslintrc.js`文件**
 
 ```
-/** @format */
-
 module.exports = {
   parser: 'babel-eslint',
   extends: ['airbnb', 'prettier', 'plugin:prettier/recommended'],
@@ -423,7 +421,7 @@ module.exports = {
 ```
 // script 增加
  "scripts": {
-   "lint": "eslint src --fix --ext .ts,.tsx"
+   "lint": "eslint src --fix"
 }
 
 // scripts同级
@@ -436,22 +434,44 @@ module.exports = {
 
 **到这里基本的配置，规范什么的算是配置完成了，然后接下来就是一些高级一点的配置。例如 webpack 的优化**
 
-### 八、配置 webpack 的一些优化项目
+### 八、webpack 构建优化项目
 
-1、 配置别名和拓展名自动补充，同时减少 import 导入的查找
+#### 缩小构建目标，打包作用域
+
+1、exclude/include 确定 loader 规则范围，减少 loader 分析
 
 ```
-// webpack.config.js
-
-resolve: {
-  extensions: ['.js', '.json', '.styl', '.jsx'],
-  alias: {
-    '@': path.resolve(__dirname, '../src/')
-  }
+{
+  test: /\.jsx?$/,
+  use: ['babel-loader'],
+  include: path.join(__dirname, '../src'),
+  exclude: /(node_modules|bower_components)/,
 }
 ```
 
-2、优化 react 的引入方式
+2、resolve.modules 指明第三方模块的绝对路径 (减少不必要的路径分析，查找)
+
+3、resolve.extensions 指定拓展名，尽可能减少后缀尝试的操作
+
+4、合理使用alias，减少路径分析操作,
+webpack 模块解释类似node。现在当前项目找，再去node_modules。因此通过别名或手动指定减少查找层级。第三方包（react，react-dom等等）都在node_modules，没必要进行路径分析。
+
+5、优化resolve.mainFields配置，查找入口文件，会根据package.json去查找。直接去查找main字断减少不必要的分析过程。package.json没有main。会先找根目录下的index
+
+```
+resolve: {
+  extensions: ['.js', '.jsx'],
+  alias: {
+    '@': path.resolve(__dirname, '../src/'),
+    'react': path.resolve(__dirname, '../node_modules/react/cjs/react.production.min.js'),
+    'react-dom': path.resolve(__dirname, '../node_modules/react-dom/cjs/react-dom.production.min.js')
+  },
+  modules: [path.resolve(__dirname, '../node_modules')],
+  mainFields: ['main']
+}
+```
+
+6、优化 react 的引入方式(该方式会采用cdn的方式引入react，第三方cdn存在不可控因素，酌情使用)
 
 ```
 // webpack.config.js
@@ -461,14 +481,196 @@ externals: {
     'react-dom': 'ReactDOM',
   },
 
-// public/index.html
-
-head内增加
+// public/index.html 的 head 内增加
 
 <script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
 <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
 
 ```
+
+#### 树摇优化 tree shaking
+
+- tree shaking 会把用到的方法打到bundle。没用的方法会在uglify阶段擦除
+
+- webpack mode 的 production 默认开启
+
+**无用的css擦除**
+
+- purgecss-webpack-plugin 和 mini-css-extract-plugin 和 glob 配合使用
+
+```
+const PurgeCSSPlugin = require('purgecss-webpack-plugin')
+const glob = require('glob')
+
+const PATHS = {
+  src: path.join(__dirname, '../src')
+}
+
+plugins: [
+     new PurgeCSSPlugin({
+      paths: glob.sync(`${PATHS.src}/**/*`,  { nodir: true }),
+    }),
+]
+```
+
+**注意：该插件会把标签选择器样式排除例如`body {color: red}`，需要手动配置排除项目**更多细节参考官方文档
+
+#### 图片压缩
+
+image-webpack-loader 配合 file-loader
+
+```
+{
+  test: /\.(png|svg|jpg|git)$/,
+  use: [
+    {
+      loader: 'file-loader',
+      options: {
+        limit: 10240,
+        name: path.join('img/[name][hash:8].[ext]')
+      }
+    },
+    {
+      loader: 'image-webpack-loader',
+      options: {
+        // 只在 production 启用
+        disable: process.env.NODE_ENV === 'production' ? false : true
+      }
+    },
+  ]
+}
+```
+
+#### 多进程/多实例构建，资源并行解析方案，提升构建速度
+
+- HappyPack（webpack3常用，作者维护的越来越少了）
+
+- parallel-webpack
+
+- thread-loader （webpack官方）
+
+```
+{
+  test: /\.jsx?$/,
+  use: [
+    {
+      loader: 'babel-loader',
+      options: {}
+    },
+    {
+      loader: 'thread-loader',
+      options: {
+        workers: 2,
+      }
+    }
+  ],
+  include: path.join(__dirname, '../src')
+},
+```
+
+### 多进程/多实例并行压缩,提升打包构建速度
+
+- parallel-uglify-plugin
+
+- uglilys-webpack-plugin（不支持es6）
+
+- terser-webpack-plugin(支持es6压缩,推荐)
+
+
+### 分包，预编译资源模块 externals
+
+- html-webpack-externals-plugin
+
+- DLLPlugin
+
+- webpack 的 externals 字断
+
+**DllPlugin**
+
+1、 创建webpack.dll.js
+
+```
+const path = require('path');
+const webpack = require('webpack');
+
+module.exports = {
+    entry: {
+        library: [
+            'react',
+            'react-dom'
+        ]
+    },
+    output: {
+        filename: '[name]_[chunkhash].dll.js',
+        path: path.join(__dirname, '../library'),
+        library: '[name]'
+    },
+    mode: 'production',
+    plugins: [
+        new webpack.DllPlugin({
+            name: '[name]_[hash]',
+            path: path.join(__dirname, '../library/[name].json')
+        })
+    ]
+};
+
+```
+2、执行构建 `webpack --config build/webpack.dll.js`
+
+3、在webpack.pro.js中plugin 引入
+
+```
+// 通过 DllReferencePlugin 对 mainfest.json引用，引入
+new webpack.DllReferencePlugin({
+  manifest: require('../library/library.json')
+})
+```
+
+**注意这里需要先执行webpack --config build/webpack.dll.js，构建出预编译资源模块，之后在打包webpack生产**
+
+#### 二次构建 缓存
+
+- babel-loader 缓存开启
+
+- terser-webpack-plugin 缓存
+
+- 使用cache-loader 或 hard-source-webpack-plugin 二次构建速度提升极大
+
+```
+const HardSourceWebpackPlugin = require('hard-source-webpack-plugin')
+plugins: [
+  new FriendlyErrorsWebpackPlugin(),
+]
+```
+
+#### noParse
+
+不去解析某个库，比如（jquyer、lodash）等，这些三方库里面没有其他依赖，可以通过配置noParse不去解析文件，提高打包效率
+
+```
+module.exports = {
+  module: {
+    noParse: '/jquery|lodash/',
+    rules:[]
+  }
+}
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 3、 dev 环境开启 sourcemap 功能，方便调试。
 
@@ -856,152 +1058,3 @@ plugins: [
     new WebpackBundleAnalyzer(),
   ]
 ```
-
-### 多进程/多实例构建，资源并行解析方案
-
-HappyPack（webpack3常用，作者维护的越来越少了） 或 parallel-webpack 或 thread-loader （webpack官方）
-
-### 多进程/多实例并行压缩
-
-parallel-uglify-plugin 和 uglilys-webpack-plugin（不支持es6） 和 terser-webpack-plugin(支持es6压缩,推荐)
-提升打包构建速度
-
-### 分包，预编译资源模块 externals
-
-html-webpack-externals-plugin 或 DLLPlugin 或 webpack的externals字断
-
-**DllPlugin**
-
-1、 创建webpack.dll.js
-
-```
-const path = require('path');
-const webpack = require('webpack');
-
-module.exports = {
-    entry: {
-        library: [
-            'react',
-            'react-dom'
-        ]
-    },
-    output: {
-        filename: '[name]_[chunkhash].dll.js',
-        path: path.join(__dirname, '../library'),
-        library: '[name]'
-    },
-    mode: 'production',
-    plugins: [
-        new webpack.DllPlugin({
-            name: '[name]_[hash]',
-            path: path.join(__dirname, '../library/[name].json')
-        })
-    ]
-};
-
-```
-2、执行构建 `webpack --config build/webpack.dll.js`
-
-3、在webpack.pro.js中plugin 引入
-
-```
-// 通过 DllReferencePlugin 对 mainfest.json引用，引入
-new webpack.DllReferencePlugin({
-  manifest: require('../library/library.json')
-}),
-```
-
-**webpack的externals字断**
-
-防止将某些 import 的包(package)打包到 bundle 中，而是在运行时(runtime)再去从外部获取这些扩展依赖(external dependencies)
-
-
-#### 二次构建速度，缓存思路
-
-babel-loader 缓存开启
-
-terser-webpack-plugin 缓存
-
-使用cache-loader或hard-source-webpack-plugin 二次构建速度提升极大
-
-```
-const HardSourceWebpackPlugin = require('hard-source-webpack-plugin')
-plugins: [
-  new FriendlyErrorsWebpackPlugin(),
-]
-```
-
-#### 缩小构建目标，打包作用域
-
-exclude/include (确定 loader 规则范围)
-resolve.modules 指明第三方模块的绝对路径 (减少不必要的查找)
-resolve.extensions 尽可能减少后缀尝试的可能性
-noParse 对完全不需要解析的库进行忽略 (不去解析但仍会打包到 bundle 中，注意被忽略掉的文件里不应该包含 import、require、define 等模块化语句)
-IgnorePlugin (完全排除模块)
-合理使用alias
-
-- babel-loader 不要解析node_modules,配置排除文件
-
-- 减少文件搜索范围，优化resolve.modules配置， 减少模块搜索层级
-
-webpack 模块解释类似node。现在当前项目找，再去node_modules。因此通过手动指定减少查找层级。第三方包都在node_modules。没必要进行路径分析。
-
-- 优化resolve.mainFields配置
-
-查找入口文件，会根据package.json去查找。直接去查找main字断减少不必要的分析过程。package.json没有main。会先找根目录下的index
-
-- 优化resolve.extensions配置
-
-配置拓展，自动不全拓展名。减少文件的查找类型范围。
-
-```
-resolve: {
-  alias: {
-    react: path.resolve(__dirname, './node_modules/react/dist/react.min.js')
-  },
-  modules: [path.resolve(__dirname, 'node_modules')],
-  mainFields: ['main']
-}
-```
-
-### 树摇优化 tree shaking
-
-tree shaking 会把用到的方法打到bundle。没用的方法会在uglify阶段擦除。
-
-webpack mode 的 production 默认开启
-
-**无用的css擦除**
-
-purifyCSS 遍历迭代，识别已用到的css class。purgecss-webpack-plugin 和 mini-css-extract-plugin配合使用
-
-```
-const PurgeCSSPlugin = require('purgecss-webpack-plugin')
-const glob = require('glob')
-
-const PATHS = {
-  src: path.join(__dirname, '../src')
-}
-
-plugins: [
-     new PurgeCSSPlugin({
-      paths: glob.sync(`${PATHS.src}/**/*`,  { nodir: true }),
-    }),
-]
-```
-
-#### 图片压缩
-
-image-webpack-loader
-
-
-### noParse
-
-不去解析某个库内部的依赖关系
-比如jquery 这个库是独立的， 则不去解析这个库内部依赖的其他的东西
-在独立库的时候可以使用
-module.exports = {
-  module: {
-    noParse: /jquery/,
-    rules:[]
-  }
-}
