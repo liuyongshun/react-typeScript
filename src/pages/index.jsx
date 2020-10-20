@@ -1,8 +1,8 @@
 import React, { PureComponent } from 'react'
 import { HashRouter, Route, Switch } from 'react-router-dom'
+import img from '@/assets/images/gg.png'
 import Main from './main'
 import '../style/common.less'
-import img from '@/assets/images/gg.png'
 
 class App extends PureComponent {
   render() {

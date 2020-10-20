@@ -113,7 +113,7 @@ const config = {
             loader: 'url-loader',
             options: {
               limit: 10240,
-              name: path.join('img/[name][hash:8].[ext]')
+              name: path.join('fonts/[name][hash:8].[ext]')
             }
           }
         ]

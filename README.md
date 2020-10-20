@@ -1,8 +1,7 @@
 <!-- @format -->
 
-### react + typescript 项目搭建
 
-#### 一、基础结构搭建
+### 一、基础结构搭建
 
 1、安装 node
 
@@ -29,7 +28,7 @@
 
 ```
 
-#### 二、webpack 配置
+### 二、webpack 配置
 
 1、安装 webpack 和 webpack-cli 脚手架。`webpack webpack-cli`
 
@@ -48,7 +47,7 @@
 }
 ```
 
-**此时的配置代码：**
+**此时的配置代码**
 
 ```
 // webpack.config.js
@@ -82,7 +81,7 @@ module.exports = {
 
 ```
 
-**此时目录结构：**
+**此时目录结构**
 
 ```
 ├── build
@@ -96,11 +95,26 @@ module.exports = {
         └── index.js
 ```
 
-#### 三、react + react-router + es6 搭建
+### 三、react + react-router + es6 搭建
 
 1、安装 react 相关工具`react`和`react-dom`
 
-2、安装 es6 工具 `@babel/core @babel/preset-env babel-loader`,对于 react 需要安装`@babel/preset-react`
+2、安装es6依赖
+
+- 安装 es6 工具 `@babel/core @babel/preset-env babel-loader`,
+
+- 对于 react 需要安装`@babel/preset-react`
+
+- 动态导入`@babel/plugin-syntax-dynamic-import`
+
+- class类的属性尖头函数支持 `@babel/plugin-proposal-class-properties`
+
+例：
+```
+class A {
+  ff = () => {}
+}
+```
 
 3、配置 babel.config.js
 
@@ -110,7 +124,10 @@ module.exports = {
     '@babel/preset-env',
     '@babel/preset-react'
   ],
-  plugins: []
+  plugins': [
+      '@babel/plugin-syntax-dynamic-import',
+      '@babel/plugin-proposal-class-properties'
+  ]
 }
 ```
 
@@ -119,14 +136,14 @@ module.exports = {
 ```
  module: {
     rules: [{
-      test: /\.js$/,
+      test: /\.jsx?$/,
       use: ['babel-loader'],
       include: path.join(__dirname, '../src')
     }]
   }
 ```
 
-5、配置最简单的页面内容。
+5、配置最简单的页面内容
 
 ```
 // src/index.js
@@ -152,15 +169,282 @@ export default App
 
 **操作到这里，一个简单的 react 页面已经跑起来了，但是很显然这些东西是不够的，一个完整的项目工程，还需要很多东西。如果上面的基本配置完成并且跑起了项目，那就接着往下走吧。整个流程下来，最后要实现的是完整的开发，构建打包内容，能够支撑项目的运作。**
 
-#### 四、配置 webpack 的一些优化项目
 
-1、 配置别名和拓展名自动补充，规范同时方便 import 导入。
+### 四、less 或 sass 或 stylus
+
+#### css
+
+1、安装依赖
+
+- `css-loader` 加载.css 文件，并转换成 js 对象
+
+- `style-loader`，将样式通过 style 标签插入 head 标签内
+
+2、配置 webpack.config.js
+
+```
+// 在relus里增加如下代码。
+
+{
+  test: /\.css$/,
+  use: [
+    'style-loader',
+    'css-loader'
+  ]
+}
+```
+
+**ps:**
+
+- 这里有个要注意的点，样式加载器的顺序，先 css-loader 在 style-loader
+
+- webpack 的 loader 采用了函数的 compose（组合）方式，而不是 pipe（管道），compose 方式的执行顺序是从右到左，pipe 的执行顺序是从左到右
+
+3、在 src 下新建 style 文件，然后里面新建 common.css。并且导入到 pages/index.js 页面
+
+```
+// src/pages/index.js
+
+import '../style/common.css'
+
+```
+
+#### less
+
+1、假如使用 less，只需要安装`less 和 less-loader`,在 webpack.config.js 的配置中的加入下面的配置
+
+```
+{
+  test: /\.less$/,
+  use: [
+    'style-loader',
+    'css-loader',
+    'less-loader'
+  ]
+}
+```
+
+#### sass
+
+1、假如使用 sass，需要安装`sass-loader node-sass`，在 webpack.config.js 中配置如下
+
+```
+{
+  test: /\.scss$/,
+  use: [
+    'style-loader',
+    'css-loader',
+    'sass-loader'
+  ]
+}
+```
+#### stylus
+
+1、假如使用 stylus，需要安装`stylus-loader stylus`，在 webpack.config.js 中配置如下
+
+```
+{
+  test: /\.styl$/,
+  use: [
+    'style-loader',
+    'css-loader',
+    'stylus-loader'
+  ]
+}
+```
+
+**注意**
+
+- less-loader 依赖于 less，有时候出现 peerDependencies WARNING less-loader@\* requires a peer of less@^2.3.1 || ^3.0.0 but none was installed，自己手动安装一下 less 即可
+
+- 记住：遇到 peerDependencies WARNING，什么依赖未能安装时，记得手动安装即可。或者用 yarn 更稳妥
+
+#### 五、配置图片，字体文件资源加载
+
+1、字体和图片资源需要依赖 file-loader。另外还有 url-loader 可以作为解决方案，url-loader 可以处理小资源转化为 base64 格式。url-loader 依赖于 file-loader。
+
+```
+ {
+  test: /\.(png|svg|jpg|git)$/,
+  use: [
+    {
+      loader: 'url-loader',
+      options: {
+        limit: 10240
+      }
+    }
+  ]
+},
+{
+  test: /\.(woff2?|eot|ttf|otf)(\?.*)?$/,
+  use: [
+    {
+      loader: 'url-loader',
+      options: {
+        limit: 10240
+      }
+    }
+  ]
+}
+```
+
+### 六、eslint + pretter 规范代码
+
+- 安装 eslint 相关插件 `eslint`, 可以将错误展示在termial 终端的控制台上 `eslint-loader`
+
+- 安装 `babel-eslint` 对Babel解析器的包装，使其能够与 ESLint 兼容
+
+- react 语法校验 `eslint-plugin-react`
+
+- 使用airbnb 规范 `eslint-config-airbnb`
+
+- 支持对ES2015+ (ES6+) import/export校验, 检测文件路径拼错或者是导入名称错误`eslint-plugin-import`
+
+- 该依赖包专注于检查JSX元素的可访问性，`eslint-plugin-jsx-a11y`
+
+- 借助webpack的配置来辅助eslint解析，最有用的就是alias，从而避免unresolved的错误`eslint-import-resolver-webpack`
+
+- 该插件辅助Eslint可以平滑地与Prettier一起协作,将 prettier 作为 ESLint 规范来使用 `eslint-plugin-prettier`
+
+- 禁用掉所有的可能与pretter冲突的格式化相关的规则`eslint-config-prettier`
+
+**配置`.eslintrc.js`文件**
+
+```
+/** @format */
+
+module.exports = {
+  parser: 'babel-eslint',
+  extends: ['airbnb', 'prettier', 'plugin:prettier/recommended'],
+  plugins: ['prettier'],
+  env: {
+    browser: true,
+    node: true
+  },
+  settings: {
+    // 自动发现React的版本，从而进行规范react代码
+    react: {
+      pragma: 'React',
+      version: 'detect'
+    },
+    // 解决 eslint 无法解析bebpack导入的错误提示
+    'import/resolver': {
+      webpack: {
+        config: './build/webpack.config.js'
+      }
+    }
+  },
+  parserOptions: {
+    //指定ESLint可以解析JSX语法
+    ecmaVersion: 2019,
+    sourceType: 'module',
+    ecmaFeatures: {
+      jsx: true
+    }
+  },
+  rules: {
+    'react/jsx-one-expression-per-line': 'off', // 关闭要求一个表达式必须换行的要求，和Prettier冲突
+    'react/jsx-wrap-multilines': 'off', // 关闭要求jsx属性中写jsx必须要加括号，和Prettier冲突
+    'jsx-a11y/no-static-element-interactions': 'off', // 关闭非交互元素加事件必须加 role
+    'jsx-a11y/click-events-have-key-events': 'off', // 关闭click事件要求有对应键盘事件
+    // 'react/jsx-filename-extension': 'off', // 关闭airbnb对于jsx必须写在jsx文件中的设置
+    // 'react/prop-types': 'off', // 关闭airbnb对于必须添加prop-types的校验
+    'no-console': 'off',
+    'react/jsx-props-no-spreading': 'off',
+    // "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }],
+  }
+}
+
+```
+
+**配置.prettierrc.js**
+
+```
+module.exports = {
+  printWidth: 120,
+  semi: false,
+  singleQuote: true,
+  bracketSpacing: true,
+  jsxBracketSameLine: false,
+  arrowParens: 'avoid',
+  insertPragma: false,
+  tabWidth: 2,
+  alwaysParens: 'always',
+  useTabs: false
+}
+```
+
+**配置 webpack.config.js**
+
+```
+{
+  test: /\.jsx?$/,
+  use: ['babel-loader', 'eslint-loader'],
+  include: path.join(__dirname, '../src')
+},
+```
+
+**pretter 自动格式化**
+
+- vs code 安装 eslint 插件和 prettier-code 插件。设置如下配置。preferences —— setting —— 点击右上角的图标打开 json 文件
+
+```
+// 保存自动格式化
+"editor.formatOnSave": true,
+ "eslint.run": "onSave",
+    "eslint.autoFixOnSave": true,
+    "eslint.validate": [
+        "javascript",
+        "javascriptreact",
+        "html",
+        "vue",
+        {
+            "language": "html",
+            "autoFix": true
+        },
+    ],
+    "eslint.options": {
+        "extensions": [
+            ".js",
+            ".vue",
+            ".jsx"
+        ]
+    },
+```
+
+### 七 hook 校验
+
+配合 husky 和 lint-staged 在 git 提交时自动格式化代码
+
+1、 安装依赖，`husky lint-staged`
+
+2、 配置 package.json
+
+```
+// script 增加
+ "scripts": {
+   "lint": "eslint src --fix --ext .ts,.tsx"
+}
+
+// scripts同级
+ "husky": {
+   "hooks": {
+      "pre-commit": "npm run lint"
+    }
+},
+```
+
+**到这里基本的配置，规范什么的算是配置完成了，然后接下来就是一些高级一点的配置。例如 webpack 的优化**
+
+### 八、配置 webpack 的一些优化项目
+
+1、 配置别名和拓展名自动补充，同时减少 import 导入的查找
 
 ```
 // webpack.config.js
 
 resolve: {
-  extensions: ['.js', '.json', '.styl'],
+  extensions: ['.js', '.json', '.styl', '.jsx'],
   alias: {
     '@': path.resolve(__dirname, '../src/')
   }
@@ -198,327 +482,6 @@ devtool: 'source-map'
 //
 
 ```
-
-#### 五、配置样式，less 或 sass 或 stylus。
-
-1、安装依赖 `css-loader` 加载.css 文件，并转换成 commonjs 对象。安装`style-loader`，将样式通过 style 标签插入 head 标签内。
-
-2、配置 webpack.config.js
-
-```
-// 在relus里增加如下代码。
-
-{
-  test: /\.css$/,
-  use: [
-    'style-loader',
-    'css-loader'
-  ]
-}
-```
-
-**ps:**
-
-- 这里有个要注意的点，样式加载器的顺序，先 style-loader 在 css-loader。
-
-**知识：**
-
-- webpack 的 loader 采用了函数的 compose（组合）方式，而不是 pipe（管道），compose 方式的执行顺序是从右到左，pipe 的执行顺序是从做到右。
-
-3、在 src 下新建 style 文件，然后里面新建 common.css。并且导入到 pages/index.js 页面。
-
-```
-// src/pages/index.js
-
-import '../style/common.css'
-
-```
-
-4、假如使用 less，只需要安装`less-loader`,在 webpack.config.js 的配置中的加入下面的配置。
-
-```
-{
-  test: /\.less$/,
-  use: [
-    'style-loader',
-    'css-loader',
-    'less-loader'
-  ]
-}
-```
-
-5、假如使用 sass，需要安装`sass-loader node-sass`，在 webpack.config.js 中配置如下。
-
-```
-{
-  test: /\.scss$/,
-  use: [
-    'style-loader',
-    'css-loader',
-    'sass-loader'
-  ]
-}
-```
-
-6、假如使用 stylus，需要安装`stylus-loader stylus`，在 webpack.config.js 中配置如下。
-
-```
-{
-  test: /\.styl$/,
-  use: [
-    'style-loader',
-    'css-loader',
-    'stylus-loader'
-  ]
-}
-```
-
-**注意**
-
-less-loader 依赖于 less，有时候出现 peerDependencies WARNING less-loader@\* requires a peer of less@^2.3.1 || ^3.0.0 but none was installed，自己手动安装一下 less 即可。反正记住：遇到 peerDependencies WARNING，什么依赖未能安装时，记得手动安装即可。或者用 yarn 更稳妥。
-
-#### 六、配置图片，字体文件资源加载
-
-1、字体和图片资源需要依赖 file-loader。另外还有 url-loader 可以作为解决方案，url-loader 可以处理小资源转化为 base64 格式。url-loader 依赖于 file-loader。
-
-```
- {
-  test: /\.(png|svg|jpg|git)$/,
-  use: [
-    {
-      loader: 'url-loader',
-      options: {
-        limit: 10240
-      }
-    }
-  ]
-},
-{
-  test: /\.(woff2?|eot|ttf|otf)(\?.*)?$/,
-  use: [
-    {
-      loader: 'url-loader',
-      options: {
-        limit: 10240
-      }
-    }
-  ]
-}
-```
-
-#### 七、安装 type-script 配置
-
-1、 安装 react 声明文件 `@types/react @types/react-dom`
-
-2、安装 typescript 依赖`typescript`
-
-3、新建 tsconfig.json
-
-[更多配置](https://www.tslang.cn/docs/handbook/tsconfig-json.html)
-
-```
-// tsconfig.json
-
-{
-    "compilerOptions": {
-        "outDir": "./dist/",
-        "sourceMap": true,
-        "noImplicitAny": true,
-        "module": "commonjs",
-        "target": "es5",
-        "jsx": "react"
-    },
-    "include": [
-        "./src/**/*"
-    ]
-}
-```
-
-4、配置 webpack.config.js
-
-```
-// 1. extensions增加.ts 和 .tsx
-resolve: {
-  extensions: ['.ts', '.tsx', '.js', '.json', '.styl'],
-  alias: {
-    '@': path.resolve(__dirname, '../src/')
-  }
-},
-
-// 2. webpack.config.js 的rules里配置。
-
-  {
-    test: /\.(j|t)sx?$/,
-    use: ['babel-loader']
-  }
-
-// 3. webpack.config.js的entry的index.js改为index.tsx
-```
-
-5、 将文件拓展名从`.js`改成`.tsx`。
-
-#### 八、配置 eslint 规范代码
-
-[ts 使用 eslint](https://eslint.org/blog/2019/01/future-typescript-eslint#linting)
-
-[TypeScript ESLint 相关信息](https://github.com/typescript-eslint/typescript-eslint)
-
-**typescript-eslint-parser 不在维护用@typescript-eslint/parser 代替，可查看上面第一个链接。**
-
-- 安装 eslint 和 ts 相关插件 `eslint eslint-loader @typescript-eslint/parser`, 另外还需插件`@typescript-eslint/eslint-plugin`包含了各类定义好的检测 Typescript 代码的规范。
-
-- 因为同时是 react 项目，还需要安装 `eslint-plugin-react`
-
-- 配置`.eslintrc.js`文件
-
-```
-module.exports = {
-
-    parser:  '@typescript-eslint/parser', //定义ESLint的解析器
-    extends: [
-    'plugin:react/recommended'
-    'plugin:@typescript-eslint/recommended'
-    ],
-    plugins: ['@typescript-eslint'], //定义ESLint的解析器
-    env:{
-        browser: true,
-        node: true,
-    },
-    settings: {             //自动发现React的版本，从而进行规范react代码
-        "react": {
-            "pragma": "React",
-            "version": "detect"
-        }
-    },
-    parserOptions: {        //指定ESLint可以解析JSX语法
-        "ecmaVersion": 2019,
-        "sourceType": 'module',
-        "ecmaFeatures":{
-            jsx:true
-        }
-    }
-    rules: {
-
-    }
-}
-
-```
-
-- 配置 webpack.config.js
-
-```
-// 配置webpack.config.js
-
-{
-  test: /\.js$/,
-  use: ['babel-loader', 'eslint-loader'],
-  include: path.join(__dirname, '../src')
-},
-{
-  test: /\.(j|t)sx?$/,
-  use: ['babel-loader', 'eslint-loader']
-},
-```
-
-- 为了方便使用采用 Prettier 和 eslint 结合来格式化代码，安装依赖 `prettier eslint-config-prettier eslint-plugin-prettier`
-
-1. prettier：prettier 插件的核心代码
-2. eslint-config-prettier：解决 ESLint 中的样式规范和 prettier 中样式规范的冲突，以 prettier 的样式规范为准，使 ESLint 中的样式规范自动失效
-3. eslint-plugin-prettier：将 prettier 作为 ESLint 规范来使用
-
-- 创建.prettierrc.js 文件
-
-```
-module.exports = {
-  printWidth: 120,
-  semi: false,
-  singleQuote: true,
-  bracketSpacing: true,
-  jsxBracketSameLine: true,
-  arrowParens: 'avoid',
-  insertPragma: true,
-  tabWidth: 2,
-  useTabs: false,
-}
-
-```
-
-- 修改`.eslintrc.js` 文件，搭配 prettier 使用。
-
-[prettier 和 ts 使用](https://www.npmjs.com/package/@typescript-eslint/eslint-plugin)
-
-```
-// 更改掉extents即可。
-  extends: ['prettier/@typescript-eslint', 'plugin:prettier/recommended']
-```
-
-1. prettier/@typescript-eslint：使得@typescript-eslint 中的样式规范失效，遵循 prettier 中的样式规范
-2. plugin:prettier/recommended：使用 prettier 中的样式规范，且如果使得 ESLint 会检测 prettier 的格式问题，同样将格式问题以 error 的形式抛出
-
-**到这里，基本上完成 eslint 和 prettier 的配置了，然后接下来有两个选择，1. 配合 husky 和 lint-staged 在 git 提交时自动格式化代码。2.开发时配合 vscode 保存自动格式化代码。**
-
-**方式 1:**
-
-1、 安装依赖，`husky lint-staged`。
-
-2、 配置 package.json
-
-```
-// script 增加
- "scripts": {
-   "lint": "eslint src --fix --ext .ts,.tsx"
-}
-
-// scripts同级
- "husky": {
-   "hooks": {
-      "pre-commit": "npm run lint"
-    }
-},
-```
-
-**方式 2:**
-
-- vs code 安装 eslint 插件和 prettier-code 插件。设置如下配置。preferences —— setting —— 点击右上角的图标打开 json 文件。
-
-```
-// 保存自动格式化
-"editor.formatOnSave": true,
- "eslint.run": "onSave",
-    "eslint.autoFixOnSave": true,
-    "eslint.validate": [
-        "javascript",
-        "javascriptreact",
-        "html",
-        "vue",
-        {
-            "language": "typescript",
-            "autoFix": true
-        },
-        {
-            "language": "html",
-            "autoFix": true
-        },
-        {
-            "language": "typescript",
-            "autoFix": true
-        },
-        {
-            "language": "typescriptreact",
-            "autoFix": true
-        },
-        "typescriptreact"
-    ],
-    "eslint.options": {
-        "extensions": [
-            ".js",
-            ".vue",
-            ".tsx"
-        ]
-    },
-```
-
-**到这里基本的配置，规范什么的算是配置完成了，然后接下来就是一些高级一点的配置。例如 webpack 的优化。typescript 的装饰器，router 的懒加载等等。**
 
 #### 九、 webpack 的优化。针对生产环境。
 
@@ -587,6 +550,24 @@ plugins: [
 }
 
 ```
+Hash
+和整个项目的构建相关，只要项目中的文件有修改，整个项目构建的hash值就会发生改变
+
+Chunkhash
+不同的entry会生成不同的chunkhash值
+
+1、output中的filename增加chunkhash
+
+Contenthash
+
+根据文件内容来定义hash，文件内容不变，则contenthash不变;一般css会采用contenthash，js发生变化，不会导致css重新生成
+
+
+css一般都会采用style-loader和css-loader，最终会通过style标签插入到页面上，不会生产css文件，所以需要使用MiniCssExtractPlugin插件
+
+
+MiniCssExtractPlugin.loader跟style-loader的功能是互斥的，不能同时存在
+
 
 **9.3 压缩 css, js 文件**
 
