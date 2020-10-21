@@ -1,8 +1,11 @@
-import Home from '@/pages/home/index'
+// import Home from '@/pages/home/index'
+import React from 'react'
+
+const Home = React.lazy(() => import('@/pages/home/index'))
+const Profile = React.lazy(() => import('@/pages/profile/index'))
+const Message = React.lazy(() => import('@/pages/message/index'))
+const Gallery = React.lazy(() => import('@/pages/gallery/index'))
 // import Nav from '@/components/nav'
-import Profile from '@/pages/profile/index'
-import Message from '@/pages/message/index'
-import Gallery from '@/pages/gallery/index'
 
 export default [
   // {

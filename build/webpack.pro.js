@@ -25,7 +25,7 @@ const config = {
     filename: '[name]_[chunkhash:8].js',
     path: path.join(__dirname, '../dist')
   },
-  mode: 'production',
+  mode: 'none',
   stats: 'normal',
   resolve: {
     extensions: ['.js', '.jsx'],
@@ -85,7 +85,7 @@ const config = {
             loader: 'px2rem-loader',
             options: {
               remUnit: 75,
-              remPrecision: 8,
+              remPrecision: 8, // 小数点位数
             },
           },
         ],
@@ -141,21 +141,33 @@ const config = {
       filename: '[name]_[contenthash:8].css'
     }),
     new FriendlyErrorsWebpackPlugin(),
-    new UglifyJsPlugin({
-      parallel: true
-    }),
+    // new UglifyJsPlugin({
+    //   parallel: true
+    // }),
     new webpack.DllReferencePlugin({
       manifest: require('../library/library.json')
     }),
     new HardSourceWebpackPlugin(),
-    new OptimizeCSSAssetsPlugin(),
+    // new OptimizeCSSAssetsPlugin(),
     new PurgeCSSPlugin({
       paths: glob.sync(`${PATHS.src}/**/*`,  { nodir: true }),
     }),
     new CleanWebpackPlugin(),
-    new WebpackBundleAnalyzer(),
+    // new WebpackBundleAnalyzer(),
     new webpack.optimize.ModuleConcatenationPlugin()
   ],
+  optimization: {
+    splitChunks: {
+      minSize: 0,
+      cacheGroups: {
+        commons: {
+          name: 'commons',
+          chunks: 'all',
+          minChunks: 2,         // 被几处文件公用，超过一处就提取
+        }
+      }
+    }
+  }
   // optimization: {
   //   minimize: true,
   //   minimizer: [

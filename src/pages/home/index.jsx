@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { login } from '@/API/login'
+import Utils from '@/utils'
 
 const Home = () => {
   const [isLogin, setIsLogin] = useState(false)
@@ -16,6 +17,7 @@ const Home = () => {
     <div>
       当前是否登陆
       {isLogin ? '是' : '否'}
+      当前时间 {Utils.getTime()}
     </div>
   )
 }

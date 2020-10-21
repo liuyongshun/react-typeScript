@@ -10,19 +10,23 @@ module.exports = {
     filename: '[name]_[chunkhash:8].js',
     path: path.join(__dirname, '../dist')
   },
-  devtool: 'source-map',
   resolve: {
     extensions: ['.js', '.jsx'],
     alias: {
-      '@': path.resolve(__dirname, '../src/')
-    }
+      '@': path.resolve(__dirname, '../src/'),
+      'react': path.resolve(__dirname, '../node_modules/react/cjs/react.production.min.js'),
+      'react-dom': path.resolve(__dirname, '../node_modules/react-dom/cjs/react-dom.production.min.js')
+    },
+    modules: [path.resolve(__dirname, '../node_modules')],
+    mainFields: ['main']
   },
   module: {
     rules: [
       {
         test: /\.jsx?$/,
         use: ['babel-loader', 'eslint-loader'],
-        include: path.join(__dirname, '../src')
+        include: path.join(__dirname, '../src'),
+        exclude: /(node_modules|bower_components)/,
       },
       {
         test: /\.css$/,
@@ -44,7 +48,6 @@ module.exports = {
               postcssOptions: {
                 plugins: [
                   [
-                    'postcss-preset-env',
                     'autoprefixer',
                   ],
                 ],
@@ -64,12 +67,12 @@ module.exports = {
         test: /\.(png|svg|jpg|git)$/,
         use: [
           {
-            loader: 'url-loader',
+            loader: 'file-loader',
             options: {
               limit: 10240,
-              name: path.join('img/[name][hash:7].[ext]')
+              name: path.join('img/[name][hash:8].[ext]')
             }
-          }
+          },
         ]
       },
       {
@@ -79,7 +82,7 @@ module.exports = {
             loader: 'url-loader',
             options: {
               limit: 10240,
-              name: path.join('img/[name][hash:7].[ext]')
+              name: path.join('fonts/[name][hash:8].[ext]')
             }
           }
         ]
@@ -98,6 +101,7 @@ module.exports = {
     new CleanWebpackPlugin(),
     new FriendlyErrorsWebpackPlugin()
   ],
+  devtool: 'source-map',
   devServer: {
     host: 'localhost',
     port: 8099,

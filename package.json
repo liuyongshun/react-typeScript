@@ -4,9 +4,8 @@
   "description": "",
   "main": "src/index.jsx",
   "scripts": {
-    "dev": "webpack-dev-server --config build/webpack.dev.js --open",
+    "dev": "webpack-dev-server --config build/webpack.config.js --open",
     "pro": "webpack --config build/webpack.pro.js",
-    "pro:node": "node build/start.build.js",
     "dll": "webpack --config build/webpack.dll.js",
     "lint": "eslint src --fix",
     "build:stas": "webpack --config build/webpack.pro.js --json > json stats.json"
@@ -71,6 +70,7 @@
     "immutable": "^4.0.0-rc.12",
     "less": "^3.12.2",
     "less-loader": "^7.0.2",
+    "lib-flexible": "^0.3.2",
     "postcss": "^8.1.1",
     "postcss-loader": "^4.0.4",
     "postcss-preset-env": "^6.7.0",
@@ -80,5 +80,10 @@
     "react-redux": "^7.2.1",
     "react-router-dom": "^5.1.2",
     "redux": "^4.0.5"
-  }
+  },
+  "browserslist": [
+    "> 1%",
+    "Android >= 4.0",
+    "not ie <= 8"
+  ]
 }

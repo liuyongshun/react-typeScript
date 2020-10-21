@@ -288,7 +288,150 @@ import '../style/common.css'
 }
 ```
 
-### 六、eslint + pretter 规范代码
+### 六、 文件指纹
+
+- hash： 整个项目的构建相关，只要项目文件有修改，整个项目构建 hash 就会改变
+
+- chunkhash： 不同 entry 会生成不同的 chunkhash 值
+
+- contenthash：根据文件内容来定义hash，文件内容不变，则contenthash不变;一般css会采用contenthash，js发生变化，不会导致css重新生成
+
+**注意：webpack 在启用 HotModuleReplacementPlugin 插件时，只能使用 hash 模式，不能使用另外两种**
+
+#### 设置图片的指纹
+
+```
+// webpack.config.js  设置图片指纹。设置字体同样
+  {
+    test: /\.(png|svg|jpg|git)$/,
+    use: [
+      {
+        loader: 'url-loader',
+        options: {
+          limit: 10240,
+          // hash:7 ：图片的hash采用md5生成（默认32位），7代表取前七位。ext：资源后缀名称
+          name: path.join('img/[name].[hash:8].[ext]')
+        }
+      }
+    ]
+  }
+
+```
+
+#### css 拆分和设置 css 指纹
+
+**关于css拆分和内联**
+
+css 内联：将样式内嵌到head标签，适用于小项目，css不会太多，通过内联减少 http 请求，进而提升性能，方法一`style-loader`方法二`html-inline-css-webpack-plugin`
+
+css 拆分：大项目例如庞大的后台系统，将所有的样式内联，太多的css反而适得其反
+
+- 拆分 css 安装依赖 `mini-css-extract-plugin`，该插件不支持 HotModuleReplacementPlugin
+
+- 该插件和 style-loader 是互斥插件，将 css 拆成独立的 css 文件
+
+- 同理它的loader，MiniCss.loader 跟style-loader的功能是互斥的，不能同时存在
+
+- style-loader 是将样式以 style 标签的形式插入 head
+
+webpack.config.js 配置
+
+```
+const MiniCss = require('mini-css-extract-plugin')
+
+plugins: [
+  new MiniCss({
+    filename: '[name]_[contenthash:8]'
+  })
+]
+
+{
+  test: /\.css$/,
+  use: [MiniCss.loader, 'css-loader']
+},
+{
+  test: /\.less$/,
+  use: [MiniCss.loader, 'css-loader', 'less-loader']
+}
+
+```
+
+#### 构建产物的自动清理
+
+hash 的设置，会导致 dist 内打包的东西越来越多，需要先清理dist文件
+
+- 安装插件 `clean-webpack-plugin`,插件会自动针对 webpack 的 output 进行清理
+
+使用：
+```
+const { CleanWebpackPlugin } = require('clean-webpack-plugin')
+
+plugins: [
+  new CleanWebpackPlugin()
+]
+```
+
+### 七、移动端适配
+
+#### 适配尺寸
+
+- 采用 px2rem-loader 和淘宝的 lib-flexible
+
+1、配置loader
+```
+{
+  test: /\.less$/,
+  use: [
+    // ...其他loader
+    {
+      loader: 'px2rem-loader',
+      options: {
+        remUnit: 75,
+        remPrecision: 8, // 小数点位数
+      },
+    },
+  ],
+},
+```
+
+2、入口文件导入 `import 'lib-flexible'`
+
+#### 适配兼容css
+
+postcss-loader + （autoprefixer 或 postcss-preset-env） 增加样式兼容
+
+- autoprefixer 自动补全前缀，许开发者使用最新的CSS语法而不用担心浏览器兼容性
+
+- postcss-preset-env 允许开发者使用最新的CSS语法而不用担心浏览器兼容性
+
+1、 配置 webpack 的 postcss-loader
+```
+{
+  loader: 'postcss-loader',
+  options: {
+    postcssOptions: {
+      plugins: [
+        [
+          'postcss-preset-env',
+          // 'autoprefixer',
+        ],
+      ],
+    },
+  },
+},
+```
+
+2、指定package.json兼容版本
+
+```
+"browserslist": [
+  "> 1%",
+  "Android >= 4.0",
+  "not ie <= 8"
+]
+```
+
+### 八、eslint + pretter 规范代码
 
 - 安装 eslint 相关插件 `eslint`, 可以将错误展示在termial 终端的控制台上 `eslint-loader`
 
@@ -410,7 +553,7 @@ module.exports = {
     },
 ```
 
-### 七 hook 校验
+### 九、 git hook 校验代码提交质量
 
 配合 husky 和 lint-staged 在 git 提交时自动格式化代码
 
@@ -432,9 +575,9 @@ module.exports = {
 },
 ```
 
-**到这里基本的配置，规范什么的算是配置完成了，然后接下来就是一些高级一点的配置。例如 webpack 的优化**
+**到这里基本的配置，规范什么的算是配置完成了，然后接下来是 webpack 的优化**
 
-### 八、webpack 构建优化项目
+### 十、webpack 构建优化项目
 
 #### 缩小构建目标，打包作用域
 
@@ -568,7 +711,7 @@ image-webpack-loader 配合 file-loader
 },
 ```
 
-### 多进程/多实例并行压缩,提升打包构建速度
+### 十一、多进程/多实例并行压缩,提升打包构建速度
 
 - parallel-uglify-plugin
 
@@ -577,7 +720,7 @@ image-webpack-loader 配合 file-loader
 - terser-webpack-plugin(支持es6压缩,推荐)
 
 
-### 分包，预编译资源模块 externals
+### 十二、分包，预编译资源模块 externals
 
 - html-webpack-externals-plugin
 
@@ -628,9 +771,18 @@ new webpack.DllReferencePlugin({
 
 **注意这里需要先执行webpack --config build/webpack.dll.js，构建出预编译资源模块，之后在打包webpack生产**
 
-#### 二次构建 缓存
+### 十三、二次构建缓存
 
-- babel-loader 缓存开启
+- babel-loader 缓存开启, 会在node_modules下生成.cache
+
+```
+{
+  loader: 'babel-loader',
+  options: {
+    cacheDirectory: true
+  }
+}
+```
 
 - terser-webpack-plugin 缓存
 
@@ -639,11 +791,11 @@ new webpack.DllReferencePlugin({
 ```
 const HardSourceWebpackPlugin = require('hard-source-webpack-plugin')
 plugins: [
-  new FriendlyErrorsWebpackPlugin(),
+  new HardSourceWebpackPlugin(),
 ]
 ```
 
-#### noParse
+### 十四、noParse
 
 不去解析某个库，比如（jquyer、lodash）等，这些三方库里面没有其他依赖，可以通过配置noParse不去解析文件，提高打包效率
 
@@ -656,122 +808,7 @@ module.exports = {
 }
 ```
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-3、 dev 环境开启 sourcemap 功能，方便调试。
-
-```
-devtool: 'source-map'
-```
-
-4、css 变量全局引入
-
-```
-//
-
-```
-
-#### 九、 webpack 的优化。针对生产环境。
-
-**9.1 webpack 文件指纹**
-
-1. hash： 整个项目的构建相关，只要项目文件有修改，整个项目构建 hash 就会改变。
-2. chunkhash： 不同 entry 会生成不同的 chunkhash 值。
-3. contenthash： 文件内容不变，contenthash 不变。
-
-**webpack 在启用热更新时只能使用 hash 模式，不能使用另外两种**
-
-```
-  // 输出文件js的指纹
-
-  output: {
-    filename: '[name]_[hash:8].js'
-  }
-```
-
-**设置图片的指纹**
-
-```
-// webpack.config.js  设置图片指纹。设置字体同样。
-  {
-    test: /\.(png|svg|jpg|git)$/,
-    use: [
-      {
-        loader: 'url-loader',
-        options: {
-          limit: 10240,
-          // hash:7 ：图片的hash采用md5生成（默认32位），7代表取前七位。ext：资源后缀名称。
-          name: path.join('img/[name].[hash:7].[ext]')
-        }
-      }
-    ]
-  }
-
-```
-
-**9.2 css 拆分和设置 css 指纹**
-
-- 拆分 css 安装依赖 `mini-css-extract-plugin`，该插件不支持热更新，是用于生产的插件配置。
-
-- webpack.config.js 配置
-
-**该插件和 style-loader 是互斥插件，style-loader 是将样式以 style 标签的形式插入 head。该插件恰好相反，将 css 拆成独立的 css 文件。所以要调整 css,less 等 loader，如下代码。**
-
-```
-const MiniCss = require('mini-css-extract-plugin')
-
-// plugins配置
-plugins: [
-  new MiniCss({
-    filename: '[name]_[contenthash:8]'
-  })
-]
-
-// loader配置
-{
-  test: /\.css$/,
-  use: [MiniCss.loader, 'css-loader']
-},
-{
-  test: /\.styl$/,
-  use: [MiniCss.loader, 'css-loader', 'stylus-loader']
-}
-
-```
-Hash
-和整个项目的构建相关，只要项目中的文件有修改，整个项目构建的hash值就会发生改变
-
-Chunkhash
-不同的entry会生成不同的chunkhash值
-
-1、output中的filename增加chunkhash
-
-Contenthash
-
-根据文件内容来定义hash，文件内容不变，则contenthash不变;一般css会采用contenthash，js发生变化，不会导致css重新生成
-
-
-css一般都会采用style-loader和css-loader，最终会通过style标签插入到页面上，不会生产css文件，所以需要使用MiniCssExtractPlugin插件
-
-
-MiniCssExtractPlugin.loader跟style-loader的功能是互斥的，不能同时存在
-
-
-**9.3 压缩 css, js 文件**
+### 十五、压缩 css, js，html 文件
 
 - css 压缩插件 `optimize-css-assets-webpack-plugin`, js 压缩插件`uglifyjs-webpack-plugin`
 
@@ -787,13 +824,15 @@ plugins: [
 ],
 ```
 
-**1. uglifyjs-webpack-plugin 本身 webpack 是内置了，mode 为 production 时自动压缩，自己引入配置可以增加定制化功能**
+- uglifyjs-webpack-plugin 本身 webpack 是内置了，mode 为 production 时自动压缩，自己引入配置可以增加定制化功能
 
-**2. css 的压缩还有采用 optimize-css-assets-webpack-plugin + cssnano 的配置方式，喜欢的可以去看看。**
+- css 的压缩还有采用 optimize-css-assets-webpack-plugin + cssnano 的配置方式，cssnano基于postcss的一款功能强大的插件包，如果用了postcss建议压缩采用cssnano
 
-**9.4 html 的压缩**
+- cssnano：删除空格和最后一个分号；删除注释；优化字体权重；丢弃重复的样式规则；优化calc()；压缩选择器；减少手写属性；合并规则
 
-上面我们在最开始用到插件`html-webpack-plugin`来处理 index.html，该插件还可以配置压缩 html，只需要简单配置即可。
+**html 的压缩**
+
+上面我们在最开始用到插件`html-webpack-plugin`来处理 index.html，该插件还可以配置压缩 html，只需要简单配置即可
 
 ```
 // 完整的配置
@@ -814,107 +853,103 @@ plugins: [
 ]
 ```
 
-**9.5 构建产物的自动清理，hash 的设置，会导致 dist 内打包的东西越来越多，需要先清理**
+#### 十六、提取公共页面资源, 代码分隔
 
-- 安装插件 `clean-webpack-plugin`,插件会自动针对 webpack 的 output 进行清理。
+- webpack 4内置的 SplitChunksPlugin 进行公共脚本分离
 
-```
-// 这个导入方式必须解构
-const { CleanWebpackPlugin } = require('clean-webpack-plugin')
+- 脚本懒加载，使脚本首次加载下载的更小
 
-plugins: [
-  new CleanWebpackPlugin()
-]
-```
+chunks:
 
-#### 十、tree shaking 优化代码， 一些饮用了但是没有实际使用的变量等不被打包进去。
+- async: 异步引入库分离
 
-webpack4 mode 模式设置为 production 即可。
+- initial: 同步引入库分离
 
-#### 十一、scope hoisting 代码必须是 es6 ，如果是 cjs 则不行。
-
-webpack 4 mode 模式设置为 production 即可。
-
-或
+- all: 全部分离
 
 ```
-const webpack = require('webpack')
-plugins: [
-  new webpack.optimize.ModuleConcatenationPlugin()
-]
+optimization: {
+  splitChunks: {
+    minSize: 0,
+    cacheGroups: {
+      commons: {
+        name: 'commons',
+        chunks: 'all',
+        minChunks: 2,         // 被几处文件公用，超过一处就提取
+      }
+    }
+  }
+}
 ```
 
-webpack 3 使用
+十一，十六有问题
 
-```
-const ModuleConcatenationPlugin = require('webpack/lib/optimize/ModuleConcatenationPlugin');
-module.exports = {
-  plugins: [
-    new ModuleConcatenationPlugin(),
-  ],
-};
-```
+### 十七、懒加载js
 
-#### 十二、提取公共页面资源
+1、commonJS 的 require.ensure
 
-#### 十三、react (不是 ts)代码分割动态加载
+2、ES6 动态加载（es6原生不支持，babel转码），安装依赖`@babel/plugin-syntax-dynamic-import`
 
-1、安装依赖`@babel/plugin-syntax-dynamic-import`
-
-2、在 babel 的配置里导入相应插件。
+在 babel.config.js 的配置里导入相应插件
 
 ```
   plugins: ['@babel/plugin-syntax-dynamic-import']
 ```
 
-3、使用， 使用动态后，打包会生产单独的 js 文件。
+3、使用， 使用动态后，打包会生产单独的 js 文件
+
+import()传入一个模块路径，返回一个Promise，如果模块被成功解析则调用resolve回调，否则调用reject回调。resolve回调的返回值取决于目标模块的导出方式
 
 ```
-import('../dynamic').then(res => {
+import('../dynamic.jsx').then(res => {
   this.setState({
     Text: res.default
   })
 })
 ```
+4、配合React.lazy() 和 React.Suspense 实现路由代码分隔
 
-#### 一些特别的，有趣的问题。
+实际使用中，可以依据业务租组件的复杂度决定是否使用懒加载，一般来说路由的懒加载是有必要的
 
-1、 webpack 的 alias 设置 + tsconfig.json 的配置，导致 vscode 对于通过别名的方式引入的模块提示 can't find。
-
-[tsconfig 的配置](http://www.typescriptlang.org/docs/handbook/compiler-options.html)
-
-报错代码`import Gallery from '@/pages/gallery/index'`
-
-**解决**
+4.1 命名导出，通常在webpack.config.js文件中通过output.chunkFilename字段来指定动态模块的文件名。如果缺省该参数，则以filename的命名方式命名
 
 ```
-// 假如webpack.config.js配置如下
-alias: {
-  '@': path.resolve(__dirname, '../src/')
+output: {
+  path:path.resolve(__dirname,"dist"),
+  filename: "[name].[contenthash:8].js",
+  chunkFilename: '[name].bundle.js',
 }
-
-// tsconfig.json 需要做如下配置才能避免提示，/* 不可以少。
-"paths": {
-  "@/*": ["./src/*"]
-}
-
 ```
 
-#### 尾声，可以了解，但是该文档里没做的事情。
+4.2 通过以注释的形式为import()方法指定chunk的name
 
-1、css 内联，html 内联，js 内联，通过内联减少 http 请求，进而提升性能。
+```
+// 最终该模块的文件名就是button.bundle.js
+const Button = React.lazy(()=>import(/*webpackChunkName:"button"*/"../button.js"));
+```
 
-css 内联需要安装`style-loader 和 html-inline-css-webpack-plugin`
+4.3 必须搭配 Suspense 才能正常渲染
 
+```
+import React, { Suspense } from 'react'
+<Suspense fallback={<div>Loading...</div>}>
+  <Switch>
+    <Route
+      path="/"
+      component={props => {
+        return <Main {...props} />
+      }}
+    />
+  </Switch>
+</Suspense>
+```
 
-<!-- =========== -->
-解决 airbnb配置 eslint不识别webpack的路径别名
+### 其他
 
-`eslint-import-resolver-webpack`
+#### 解决 airbnb 配置 eslint 不识别 webpack 路径别名 `eslint-import-resolver-webpack`
 
 ```
 // eslintrc.js
-
 settings: {
     'import/resolver': {
       webpack: {
@@ -924,8 +959,9 @@ settings: {
   },
 ```
 
-<!-- ====== -->
-@babel/preset-react jsx语法糖的支持。始终包含以下插件：
+#### babel 插件解释
+
+- @babel/preset-react jsx语法糖的支持。始终包含以下插件：
 
 ```
 @ babel / plugin-syntax-jsx
@@ -933,16 +969,11 @@ settings: {
 @ babel / plugin-transform-react-display-name
 ```
 
-<!-- ====== -->
-@babel/preset-env
+- @babel/preset-env，是一个智能的babel预设, 让你能使用最新的JavaScript语法, 它会帮你转换成代码的目标运行环境支持的语法
 
-@babel/preset-env是一个智能的babel预设, 让你能使用最新的JavaScript语法, 它会帮你转换成代码的目标运行环境支持的语法,
-
-<!-- ===== -->
-@babel/plugin-proposal-class-properties类属性提案，如果使用尖头函数需要使用该插件
+- @babel/plugin-proposal-class-properties类属性提案，如果使用尖头函数需要使用该插件
 
 ```
-
 class Main extends PureComponent {
   // 尖头
   dd = () => {}
@@ -952,18 +983,34 @@ class Main extends PureComponent {
     )
   }
 }
+```
+
+#### eslint 错误提示
+
+- friendly-errors-webpack-plugin 将 eslint 的错误展示到浏览器,并生成遮罩层
+
+- eslint-loader 将错误输出到终端
+
+#### source-map
+
+- dev 环境开启 source-map 功能，方便调试
+
+- 生产环境关闭，线上排查可以将 source-map 上传监控
+
+source-map:
+
+```
+devtool: 'source-map'
+```
+
+#### less 变量全局引入
+
+```
+//
 
 ```
 
 <!-- ==================== -->
-// 1. 不会刷新浏览器
-$ webpack-dev-server
-//2. 刷新浏览器
-$ webpack-dev-server --inline
-//3. 重新加载改变的部分，不会刷新页面
-$ webpack-dev-server --hot
-//4. 重新加载改变的部分，HRM失败则刷新页面
-$ webpack-dev-server  --inline --hot
 
 [dev-server全套配置](https://webpack.docschina.org/configuration/dev-server/#devserver)
 
@@ -980,8 +1027,8 @@ webpack 的 watch mode 虽然能监听文件的变更，并且自动打包，但
 webpack 编译后的资源会存储在内存中，当用户请求资源时，直接于内存中查找对应资源，减少去硬盘中查找的 IO 操作耗时
 
 
-### postcss-preset-env
-postcss-preset-env允许开发者使用最新的CSS语法而不用担心浏览器兼容性
+###
+
 #### webpack 的stats
 
 <!--  -->
@@ -1058,3 +1105,7 @@ plugins: [
     new WebpackBundleAnalyzer(),
   ]
 ```
+
+
+
+#### 尾声，可以了解，但是该文档里没做的事情
