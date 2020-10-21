@@ -1,6 +1,10 @@
-const getTime = () => {
+export const getTime = () => {
   return Date.now()
 }
-export default {
-  getTime
+
+export const getValue = () => {
+  return 33
 }
+// export default {
+//   getTime
+// }

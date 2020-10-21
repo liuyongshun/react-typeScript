@@ -1,5 +1,0 @@
-"browserslist": [
-  "> 1%",
-  "Android >= 4.0",
-  "not ie <= 8"
-]

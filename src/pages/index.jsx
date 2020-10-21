@@ -1,7 +1,7 @@
 import React, { PureComponent, Suspense } from 'react'
 import { HashRouter, Route, Switch } from 'react-router-dom'
 import img from '@/assets/images/gg.png'
-import Utils from '@/utils'
+import { getTime } from '@/utils'
 import Main from './main'
 import '../style/common.less'
 
@@ -22,7 +22,7 @@ class App extends PureComponent {
           </Suspense>
         </HashRouter>
         <img src={img} alt="" />
-        {Utils.getTime()}
+        {getTime()}
       </div>
     )
   }

@@ -158,16 +158,18 @@ const config = {
   ],
   optimization: {
     splitChunks: {
-      minSize: 0,
       cacheGroups: {
-        commons: {
-          name: 'commons',
+        vendors: {
+          test: /[\\/]node_modules[\\/]/,
           chunks: 'all',
-          minChunks: 2,         // 被几处文件公用，超过一处就提取
-        }
-      }
-    }
-  }
+          minChunks: 1,
+          name: 'commons',
+          enforce: true,
+          minSize: 70000, // 限制最小大小 ( byte )
+        },
+      },
+    },
+  },
   // optimization: {
   //   minimize: true,
   //   minimizer: [

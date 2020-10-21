@@ -29,6 +29,7 @@ module.exports = {
     }
   },
   rules: {
+    // 'import/prefer-default-export': 'off', // export 只有一个时，要使用default
     'react/jsx-one-expression-per-line': 'off', // 关闭要求一个表达式必须换行的要求，和Prettier冲突
     'react/jsx-wrap-multilines': 'off', // 关闭要求jsx属性中写jsx必须要加括号，和Prettier冲突
     'jsx-a11y/no-static-element-interactions': 'off', // 关闭非交互元素加事件必须加 role

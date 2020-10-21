@@ -1,11 +1,11 @@
 import React, { PureComponent } from 'react'
-import Utils from '@/utils'
+import { getTime } from '@/utils'
 
 class Profile extends PureComponent {
   render() {
     return (
       <ul>
-        <li>profile{Utils.getTime()}</li>
+        <li>profile{getTime()}</li>
       </ul>
     )
   }

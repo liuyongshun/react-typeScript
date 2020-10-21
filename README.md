@@ -855,15 +855,15 @@ plugins: [
 
 #### 十六、提取公共页面资源, 代码分隔
 
-- webpack 4内置的 SplitChunksPlugin 进行公共脚本分离
+- webpack 4内置的 SplitChunksPlugin 进行公共脚本分离，例如多个页面使用 moment 或 axios 等插件，可以将其抽离出来
 
-- 脚本懒加载，使脚本首次加载下载的更小
+- 可以解决多页面MPA，导致的代码重复问题
 
 chunks:
 
-- async: 异步引入库分离
+- async: 异步引入库分离 import(xxx)
 
-- initial: 同步引入库分离
+- initial: 同步引入库分离 import xxx
 
 - all: 全部分离
 
@@ -881,8 +881,6 @@ optimization: {
   }
 }
 ```
-
-十一，十六有问题
 
 ### 十七、懒加载js
 
@@ -942,6 +940,35 @@ import React, { Suspense } from 'react'
     />
   </Switch>
 </Suspense>
+```
+
+### webpack性能分析
+
+#### 十八、speed-measure-webpack-plugin 分析 loader 和插件的执行时间
+
+使用：
+
+```
+const SpeedMeasure = require('speed-measure-webpack-plugin')
+const smp = new SpeedMeasure()
+const webpackConfig = {
+  entry: 'index.js',
+  output: {
+    filename: 'index.js',
+    path: path.join(__dirname, '../dist')
+  },
+}
+module.exports = smp.wrap(webpackConfig)
+```
+
+#### 十九、webpack-bundle-analyzer 分析bundle体积大小
+
+使用：
+```
+const WebpackBundleAnalyzer = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
+plugins: [
+    new WebpackBundleAnalyzer(),
+  ]
 ```
 
 ### 其他
@@ -1010,6 +1037,53 @@ devtool: 'source-map'
 
 ```
 
+#### browserslist
+
+- 是在不同的前端工具之间共用目标浏览器和 node 版本的配置工具。它主要被以下工具使用
+
+```
+Autoprefixer
+Babel
+post-preset-env
+eslint-plugin-compat
+stylelint-unsupported-browser-features
+postcss-normalize
+```
+
+- 安装 `npm i browserslist`
+
+- package.json 里面增加如下配置
+
+```
+"browserslist": [
+  "> 1%",
+  "Android >= 4.0",
+  "not ie <= 8"
+]
+```
+
+- 或者使用文件 `.browserslistrc`
+
+```
+# 注释
+> 1%
+Android >= 4.0
+not ie <= 8
+
+```
+
+**文件查询策略**
+
+- 当前目录或者上级目录的browserslist配置文件
+
+- 当前目录或者上级目录的browserslistrc配置文件
+
+- 当前目录或者上级目录的package.json配置文件里面的browserslist配置项（推荐）
+
+- 如果上述的配置文件缺失或者其他因素导致未能生成有效的配置，browserslist 将使用默认配置> 0.5%, last 2 versions, Firefox ESR, not dead
+
+
+
 <!-- ==================== -->
 
 [dev-server全套配置](https://webpack.docschina.org/configuration/dev-server/#devserver)
@@ -1025,87 +1099,3 @@ webpack 的 watch mode 虽然能监听文件的变更，并且自动打包，但
 以 watch mode 启动 webpack，监听的资源一旦发生变更，便会自动编译，生产最新的 bundle
 在编译期间，停止提供旧版的 bundle 并且将请求延迟到最新的编译结果完成之后
 webpack 编译后的资源会存储在内存中，当用户请求资源时，直接于内存中查找对应资源，减少去硬盘中查找的 IO 操作耗时
-
-
-###
-
-#### webpack 的stats
-
-<!--  -->
-ajax 和 axios 和 fetch
-
-#### browserslist 是在不同的前端工具之间共用目标浏览器和 node 版本的配置工具。它主要被以下工具使用：
-
-Autoprefixer
-Babel
-post-preset-env
-eslint-plugin-compat
-stylelint-unsupported-browser-features
-postcss-normalize
-
-browserslist示例 演示了上面列举的每个工具是如何使用 browserslist 的。所有的工具将自动的查找当前工程规划的目标浏览器范围，前提是你在前端工程的 package.json 里面增加如下配置：
-
-```
-{
-  "browserslist": [
-    "last 1 version",
-    "> 1%",
-    "maintained node versions",
-    "not dead"
-  ]
-}
-```
-
-复制代码或者在工程的根目录下存在.browerslistrc配置文件（内容如下）：
-
-```
-# 注释
-last 1 version
-> 1%
-maintained node versions
-not dead
-```
-
-查询来源
-browerslist 将使用如下配置文件限定的的浏览器和 node 版本范围：
-
-工具 options，例如 Autoprefixer 工具配置中的 browsers 属性。
-BROWERSLIST 环境变量。
-当前目录或者上级目录的browserslist配置文件。
-当前目录或者上级目录的browserslistrc配置文件。
-当前目录或者上级目录的package.json配置文件里面的browserslist配置项（推荐）。
-如果上述的配置文件缺失或者其他因素导致未能生成有效的配置，browserslist 将使用默认配置> 0.5%, last 2 versions, Firefox ESR, not dead。
-
-
-### speed-measure-webpack-plugin
-
-使用：
-
-```
-const SpeedMeasure = require('speed-measure-webpack-plugin')
-const smp = new SpeedMeasure()
-const webpackConfig = {
-  entry: 'index.js',
-  output: {
-    filename: 'index.js',
-    path: path.join(__dirname, '../dist')
-  },
-}
-module.exports = smp.wrap(webpackConfig)
-```
-
-分析loader 和插件的执行时间
-
-#### webpack-bundle-analyzer 分析bundle体积大小
-
-使用：
-```
-const WebpackBundleAnalyzer = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
-plugins: [
-    new WebpackBundleAnalyzer(),
-  ]
-```
-
-
-
-#### 尾声，可以了解，但是该文档里没做的事情
