@@ -658,6 +658,8 @@ plugins: [
 
 **注意：该插件会把标签选择器样式排除例如`body {color: red}`，需要手动配置排除项目**更多细节参考官方文档
 
+**也可以用 uncss**
+
 #### 图片压缩
 
 image-webpack-loader 配合 file-loader
@@ -730,6 +732,12 @@ image-webpack-loader 配合 file-loader
 
 **DllPlugin**
 
+- 先把依赖的不变的库打包
+
+- 生成 manifest.json文件
+
+- 然后在webpack.config中引入
+
 1、 创建webpack.dll.js
 
 ```
@@ -787,6 +795,8 @@ new webpack.DllReferencePlugin({
 - terser-webpack-plugin 缓存
 
 - 使用cache-loader 或 hard-source-webpack-plugin 二次构建速度提升极大
+
+注意：thread-loader 和 cache-loader 兩個要一起使用，先放 cache-loader 然后 thread-loader 最後 heavy-loader
 
 ```
 const HardSourceWebpackPlugin = require('hard-source-webpack-plugin')
@@ -941,6 +951,87 @@ import React, { Suspense } from 'react'
   </Switch>
 </Suspense>
 ```
+### 开发环境优化
+
+#### webpack-dev-middleware
+
+**为什么要使用？**
+
+webpack 的 watch mode 虽然能监听文件的变更，并且自动打包，但是每次打包后的结果将会存储到本地硬盘中，而 IO 操作是非常耗资源时间的，无法满足本地开发调试需求
+
+而 webpack-dev-middleware 拥有以下几点特性：
+
+- 以 watch mode 启动 webpack，监听的资源一旦发生变更，便会自动编译，生产最新的 bundle
+
+- 在编译期间，停止提供旧版的 bundle 并且将请求延迟到最新的编译结果完成之后
+
+- webpack 编译后的资源会存储在内存中，当用户请求资源时，直接于内存中查找对应资源，减少去硬盘中查找的 IO 操作耗时
+
+开发阶段
+
+#### 同样可以， 开启多核压缩 terser-webpack-plugin
+
+```
+const TerserPlugin = require('terser-webpack-plugin')
+module.exports = {
+    optimization: {
+        minimizer: [
+            new TerserPlugin({
+                parallel: true,
+                terserOptions: {
+                    ecma: 6,
+                },
+            }),
+        ]
+    }
+}
+```
+
+#### 监控面板 speed-measure-webpack-plugin
+
+#### 开启一个通知面板 webpack-build-notifier
+
+```
+// webpack.config.js文件
+const WebpackBuildNotifierPlugin = require('webpack-build-notifier');
+const webpackConfig= {
+    plugins: [
+        new WebpackBuildNotifierPlugin({
+            title: '我的webpack',
+            // logo: path.resolve('./img/favicon.png'),
+            suppressSuccess: true
+        })
+    ]
+}
+```
+#### 开启打包进度 progress-bar-webpack-plugin
+
+```
+// webpack.config.js文件
+const ProgressBarPlugin = require('progress-bar-webpack-plugin');
+const webpackConfig= {
+    plugins: [
+        new ProgressBarPlugin(),
+    ]
+}
+```
+#### 开发面板更清晰 webpack-dashboard
+
+```
+// webpack.config.js文件
+const DashboardPlugin = require('webpack-dashboard/plugin');
+const webpackConfig= {
+    plugins: [
+        new DashboardPlugin()
+        ]
+}
+// package.json文件
+{
+  "scripts": {
+    "dev": "webpack-dashboard webpack --mode development",
+  },
+}
+```
 
 ### webpack性能分析
 
@@ -1032,8 +1123,46 @@ devtool: 'source-map'
 
 #### less 变量全局引入
 
+采用 style-resources-loader
+
 ```
-//
+// 完整的less配置
+{
+  test: /\.less$/,
+  use: [
+    MiniCssExtractPlugin.loader,
+    'css-loader',
+    {
+      loader: 'postcss-loader',
+      options: {
+        postcssOptions: {
+          plugins: [
+            [
+              'autoprefixer',
+            ],
+          ],
+        },
+      },
+    },
+    {
+      loader: 'px2rem-loader',
+      options: {
+        remUnit: 75,
+        remPrecision: 8,
+      },
+    },
+    'less-loader',
+    {
+      loader: 'style-resources-loader',
+      options: {
+          patterns: [
+            path.join(__dirname, '../src/style/variable.less')
+          ],
+          injector: 'append'
+      }
+    }
+  ],
+},
 
 ```
 
@@ -1082,20 +1211,3 @@ not ie <= 8
 
 - 如果上述的配置文件缺失或者其他因素导致未能生成有效的配置，browserslist 将使用默认配置> 0.5%, last 2 versions, Firefox ESR, not dead
 
-
-
-<!-- ==================== -->
-
-[dev-server全套配置](https://webpack.docschina.org/configuration/dev-server/#devserver)
-
-webpack-dev-middleware详解
-
-为什么要使用 webpack-dev-middleware
-
-webpack 的 watch mode 虽然能监听文件的变更，并且自动打包，但是每次打包后的结果将会存储到本地硬盘中，而 IO 操作是非常耗资源时间的，无法满足本地开发调试需求。
-
-而 webpack-dev-middleware 拥有以下几点特性：
-
-以 watch mode 启动 webpack，监听的资源一旦发生变更，便会自动编译，生产最新的 bundle
-在编译期间，停止提供旧版的 bundle 并且将请求延迟到最新的编译结果完成之后
-webpack 编译后的资源会存储在内存中，当用户请求资源时，直接于内存中查找对应资源，减少去硬盘中查找的 IO 操作耗时

@@ -8,8 +8,10 @@ module.exports = {
   entry: path.join(__dirname, '../src/index.jsx'),
   output: {
     filename: '[name]_[chunkhash:8].js',
-    path: path.join(__dirname, '../dist')
+    path: path.join(__dirname, '../dist'),
+    publicPath: '/'
   },
+  mode: 'development',
   resolve: {
     extensions: ['.js', '.jsx'],
     alias: {
@@ -41,7 +43,6 @@ module.exports = {
         use: [
           MiniCssExtractPlugin.loader,
           'css-loader',
-          'less-loader',
           {
             loader: 'postcss-loader',
             options: {
@@ -61,6 +62,16 @@ module.exports = {
               remPrecision: 8,
             },
           },
+          'less-loader',
+          {
+            loader: 'style-resources-loader',
+            options: {
+                patterns: [
+                  path.join(__dirname, '../src/style/variable.less')
+                ],
+                injector: 'append'
+            }
+          }
         ],
       },
       {
@@ -103,14 +114,15 @@ module.exports = {
   ],
   devtool: 'source-map',
   devServer: {
-    host: 'localhost',
-    port: 8099,
-    compress: true,     // 为每个静态文件开启gzip
-    quiet: true,        // 不打印编译信息
-    historyApiFallback: true,
-    overlay: {          // 出现编译器错误或警告时，在浏览器中显示全屏覆盖，搭配eslint-loader.做语法校验
-      warnings: true,
-      errors: true
-    }
+    contentBase: '../dist',
+    // host: 'localhost',
+    // port: 8099,
+    // compress: true,     // 为每个静态文件开启gzip
+    // quiet: true,        // 不打印编译信息
+    // historyApiFallback: true,
+    // overlay: {          // 出现编译器错误或警告时，在浏览器中显示全屏覆盖，搭配eslint-loader.做语法校验
+    //   warnings: true,
+    //   errors: true
+    // }
   }
 }

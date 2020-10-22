@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { login } from '@/API/login'
 import { getTime } from '@/utils'
+import './home.less'
 
 const Home = () => {
   const [isLogin, setIsLogin] = useState(false)
@@ -14,7 +15,7 @@ const Home = () => {
     })
   }, [])
   return (
-    <div>
+    <div className="set-font">
       当前是否登陆
       {isLogin ? '是' : '否'}
       当前时间 {getTime()}
