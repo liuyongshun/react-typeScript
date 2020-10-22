@@ -16,7 +16,7 @@ const Home = () => {
   }, [])
   return (
     <div className="set-font">
-      当前是否登陆
+      当前是否登陆dfgfgdfg个地方地方广东富豪发生的
       {isLogin ? '是' : '否'}
       当前时间 {getTime()}
     </div>

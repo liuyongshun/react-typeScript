@@ -1,8 +1,6 @@
 const path = require('path')
 const glob = require('glob')
 const webpack = require('webpack')
-// const merge = require('webpack-merge')
-const FriendlyErrorsWebpackPlugin = require('friendly-errors-webpack-plugin')
 const MiniCss = require('mini-css-extract-plugin')
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin')
@@ -11,6 +9,7 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 const WebpackBundleAnalyzer = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
 const HardSourceWebpackPlugin = require('hard-source-webpack-plugin')
 const SpeedMeasure = require('speed-measure-webpack-plugin')
+const WebpackBuildNotifierPlugin = require('webpack-build-notifier')
 // const TerserPlugin = require('terser-webpack-plugin')
 const PurgeCSSPlugin = require('purgecss-webpack-plugin')
 const smp = new SpeedMeasure()
@@ -25,8 +24,9 @@ const config = {
     filename: '[name]_[chunkhash:8].js',
     path: path.join(__dirname, '../dist')
   },
-  mode: 'none',
-  stats: 'normal',
+  mode: 'production',
+  devtool: 'source-map',
+  stats: 'normal', //  选项让你更精确地控制 bundle 信息该怎么显示,errors-only 只在发生错误时输出
   resolve: {
     extensions: ['.js', '.jsx'],
     alias: {
@@ -37,7 +37,6 @@ const config = {
     modules: [path.resolve(__dirname, '../node_modules')],
     mainFields: ['main']
   },
-  devtool: 'source-map',
   module: {
     rules: [
       {
@@ -54,7 +53,8 @@ const config = {
             options: {
               workers: 2,
             }
-          }
+          },
+          'eslint-loader'
         ],
         include: path.join(__dirname, '../src')
       },
@@ -67,7 +67,6 @@ const config = {
         use: [
           MiniCss.loader,
           'css-loader',
-          'less-loader',
           {
             loader: 'postcss-loader',
             options: {
@@ -88,6 +87,16 @@ const config = {
               remPrecision: 8, // 小数点位数
             },
           },
+          'less-loader',
+          {
+            loader: 'style-resources-loader',
+            options: {
+                patterns: [
+                  path.join(__dirname, '../src/style/variable.less')
+                ],
+                injector: 'append'
+            }
+          }
         ],
       },
       {
@@ -103,8 +112,7 @@ const config = {
           {
             loader: 'image-webpack-loader',
             options: {
-              // 只在 production 启用
-              disable: process.env.NODE_ENV === 'production' ? false : true
+              disable: true
             }
           },
         ]
@@ -127,28 +135,20 @@ const config = {
     new HtmlWebpackPlugin({
       filename: 'index.html',
       template: 'public/index.html',
-      inject: true
-      // minify: {
-      //   minifyCSS: true,
-      //   minifyJS: true,
-      //   html5: true,
-      //   collapseWhitespace: true,
-      //   preserveLineBreaks: true,
-      //   removeComments: true
-      // }
+      inject: true,
+      minify: true
     }),
     new MiniCss({
       filename: '[name]_[contenthash:8].css'
     }),
-    new FriendlyErrorsWebpackPlugin(),
-    // new UglifyJsPlugin({
-    //   parallel: true
-    // }),
+    new UglifyJsPlugin({
+      parallel: true
+    }),
     new webpack.DllReferencePlugin({
       manifest: require('../library/library.json')
     }),
     new HardSourceWebpackPlugin(),
-    // new OptimizeCSSAssetsPlugin(),
+    new OptimizeCSSAssetsPlugin(),
     new PurgeCSSPlugin({
       paths: glob.sync(`${PATHS.src}/**/*`,  { nodir: true }),
     }),

@@ -967,7 +967,6 @@ webpack 的 watch mode 虽然能监听文件的变更，并且自动打包，但
 
 - webpack 编译后的资源会存储在内存中，当用户请求资源时，直接于内存中查找对应资源，减少去硬盘中查找的 IO 操作耗时
 
-开发阶段
 
 #### 同样可以， 开启多核压缩 terser-webpack-plugin
 
@@ -987,9 +986,9 @@ module.exports = {
 }
 ```
 
-#### 监控面板 speed-measure-webpack-plugin
+#### 监控面板 speed-measure-webpack-plugin ,（开发阶段不分析构建速度时没必要打开）
 
-#### 开启一个通知面板 webpack-build-notifier
+#### 开启一个通知面板 webpack-build-notifier （提升体验）
 
 ```
 // webpack.config.js文件
@@ -997,14 +996,13 @@ const WebpackBuildNotifierPlugin = require('webpack-build-notifier');
 const webpackConfig= {
     plugins: [
         new WebpackBuildNotifierPlugin({
-            title: '我的webpack',
-            // logo: path.resolve('./img/favicon.png'),
+            title: 'mine',
             suppressSuccess: true
         })
     ]
 }
 ```
-#### 开启打包进度 progress-bar-webpack-plugin
+#### 开启打包进度 progress-bar-webpack-plugin (提升体验，但是我居然觉得变快了)
 
 ```
 // webpack.config.js文件
@@ -1015,7 +1013,9 @@ const webpackConfig= {
     ]
 }
 ```
-#### 开发面板更清晰 webpack-dashboard
+#### 开发面板更清晰 webpack-dashboard （webapck dev server 使用静默模式，避免太杂乱，devServer: {quiet: true}）
+
+不做性能分析，没必要用它，反而是 webpack quiet 模式更好
 
 ```
 // webpack.config.js文件
@@ -1028,8 +1028,28 @@ const webpackConfig= {
 // package.json文件
 {
   "scripts": {
-    "dev": "webpack-dashboard webpack --mode development",
+    "devdash": "webpack-dashboard -- webpack-dev-server --config build/webpack.config.js",
   },
+}
+```
+
+之前：
+
+```
+"scripts": {
+    "dev": "node index.js",
+    "dev": "webpack-dev-server",
+    "dev": "webpack",
+}
+```
+
+之后：
+
+```
+"scripts": {
+    "dev": "webpack-dashboard -- node index.js",
+    "dev": "webpack-dashboard -- webpack-dev-server",
+    "dev": "webpack-dashboard -- webpack",
 }
 ```
 
@@ -1211,3 +1231,6 @@ not ie <= 8
 
 - 如果上述的配置文件缺失或者其他因素导致未能生成有效的配置，browserslist 将使用默认配置> 0.5%, last 2 versions, Firefox ESR, not dead
 
+#### stats
+
+[选项让你更精确地控制 bundle 信息该怎么显示](https://webpack.docschina.org/configuration/stats/)
