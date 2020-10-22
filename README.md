@@ -967,6 +967,46 @@ webpack 的 watch mode 虽然能监听文件的变更，并且自动打包，但
 
 - webpack 编译后的资源会存储在内存中，当用户请求资源时，直接于内存中查找对应资源，减少去硬盘中查找的 IO 操作耗时
 
+使用：
+
+```
+const express = require('express')
+const webpack = require('webpack')
+const chalk = require('chalk')  // 控制台颜色插件
+const webpackDevMiddleware = require('webpack-dev-middleware')
+
+const app = express()
+const config = require('./webpack.config.js')
+const compiler = webpack(config)
+
+app.use(webpackDevMiddleware(compiler, {
+  publicPath: config.output.publicPath, // 加载打包构建的 dist 目录
+  logTime: true,
+  stats: 'errors-warnings'
+}))
+
+const getIPAddress = () => {
+  var interfaces = require('os').networkInterfaces()
+  for (var devName in interfaces) {
+    var iface = interfaces[devName]
+    for (var i=0; i < iface.length; i++) {
+      var alias = iface[i]
+      if (alias.family === 'IPv4' && alias.address !== '127.0.0.1' && !alias.internal) {
+        return alias.address
+      }
+    }
+  }
+}
+
+// 获取 ip 将地址打印在控制台
+const LOCAL_IP = getIPAddress()
+
+app.listen(8899, () => {
+  console.log(chalk.yellow('http://localhost:8899'))
+  console.log(chalk.blue(`http://${LOCAL_IP}:8899`))
+})
+
+```
 
 #### 同样可以， 开启多核压缩 terser-webpack-plugin
 

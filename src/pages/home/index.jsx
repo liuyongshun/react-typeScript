@@ -16,9 +16,9 @@ const Home = () => {
   }, [])
   return (
     <div className="set-font">
-      当前是否登陆dfgfgdfg个地方地方广东富豪发生的
+      ggggg放水淀粉色更多风格fgdg速度放水淀粉放水淀粉水淀粉的说法是广告
       {isLogin ? '是' : '否'}
-      当前时间 {getTime()}
+      当前时间 {getTime()}刘永顺二傻子放水淀粉
     </div>
   )
 }
