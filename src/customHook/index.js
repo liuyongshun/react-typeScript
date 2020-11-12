@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 
-function useFriendStatus (friendID) {
+function useFriendStatus(friendID) {
   const [isOnline, setIsOnline] = useState(null)
 
   useEffect(() => {
